@@ -1,0 +1,2596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>FinSplit - Dashboard</title>
+
+  <!-- =====================  CSS  ===================== -->
+  <style>
+    /* RESET */
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+    /* BASE */
+    body{
+      font-family:"Segoe UI",Tahoma,Verdana,sans-serif;
+      background:#f5f7fa;
+      color:#333;
+    }
+
+    /* HEADER */
+    .header{
+      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      color:#fff;
+      padding:1rem 2rem;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      box-shadow:0 2px 10px rgba(0,0,0,.1);
+    }
+    .logo{font-size:24px;font-weight:bold}
+    .user-info{display:flex;align-items:center;gap:10px}
+    .avatar{
+      width:40px;height:40px;border-radius:50%;
+      background:rgba(255,255,255,.2);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:bold;
+    }
+    .logout-btn{
+      margin-left:15px;
+      background:rgba(255,255,255,.2);
+      border:none;
+      color:#fff;
+      padding:8px 12px;
+      border-radius:6px;
+      cursor:pointer;
+    }
+
+    /* NAVIGATION */
+    .nav{
+      background:#fff;
+      padding:0 2rem;
+      box-shadow:0 2px 5px rgba(0,0,0,.1);
+      display:flex;
+    }
+    .nav-item{
+      padding:15px 25px;
+      cursor:pointer;
+      border-bottom:3px solid transparent;
+      transition:.3s;
+      font-weight:500;
+      white-space:nowrap;
+    }
+    .nav-item:hover,
+    .nav-item.active{
+      background:#f8f9ff;
+      border-bottom-color:#667eea;
+      color:#667eea;
+    }
+
+    /* LAYOUT */
+    .container{
+      max-width:1200px;
+      margin:2rem auto;
+      padding:0 2rem;
+    }
+    .card{
+      background:#fff;
+      border-radius:12px;
+      padding:1.5rem;
+      box-shadow:0 4px 15px rgba(0,0,0,.1);
+      margin-bottom:1.5rem;
+    }
+    .card-title{
+      font-size:20px;
+      font-weight:600;
+      margin-bottom:1rem;
+      color:#2d3748;
+    }
+
+    /* DASHBOARD GRID */
+    .dashboard-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:1.5rem;
+      margin-bottom:2rem;
+    }
+    .balance-card{
+      text-align:center;
+      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      color:#fff;
+    }
+    .balance-amount{font-size:32px;font-weight:bold;margin:10px 0}
+    .balance-label{opacity:.9;font-size:14px}
+
+    /* FORMS */
+    .form-group{margin-bottom:1rem}
+    .form-group label{
+      display:block;margin-bottom:.5rem;font-weight:500;color:#4a5568
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea{
+      width:100%;
+      padding:12px;
+      border:2px solid #e2e8f0;
+      border-radius:8px;
+      font-size:16px;
+      transition:border-color .2s;
+      font-family:inherit;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus{
+      outline:none;
+      border-color:#667eea;
+    }
+    .form-group textarea{
+      resize:vertical;
+      min-height:80px;
+    }
+
+    /* BUTTONS */
+    .btn{
+      padding:12px 24px;
+      border:none;
+      border-radius:8px;
+      font-size:16px;
+      font-weight:500;
+      cursor:pointer;
+      transition:.2s;
+      display:inline-block;
+      text-align:center;
+      text-decoration:none;
+    }
+    .btn:disabled{
+      opacity:0.5;
+      cursor:not-allowed;
+    }
+    .btn-primary{
+      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      color:#fff;
+    }
+    .btn-primary:hover:not(:disabled){
+      transform:translateY(-2px);
+      box-shadow:0 5px 15px rgba(102,126,234,.3);
+    }
+    .btn-secondary{
+      background:#f7fafc;
+      color:#4a5568;
+      border:2px solid #e2e8f0;
+    }
+    .btn-danger{background:#e53e3e;color:#fff}
+    .btn-success{background:#48bb78;color:#fff}
+    .btn-warning{background:#ed8936;color:#fff}
+    .btn-small{padding:8px 16px;font-size:14px}
+
+    /* LISTS */
+    .item-list{list-style:none}
+    .item{
+      background:#fff;
+      padding:15px;
+      margin-bottom:10px;
+      border-radius:8px;
+      border-left:4px solid #667eea;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      box-shadow:0 2px 8px rgba(0,0,0,.1);
+    }
+    .item-info h4{margin:0 0 5px;color:#2d3748}
+    .item-info p{margin:0;color:#718096;font-size:14px}
+    .item-actions{display:flex;gap:10px;margin-top:5px}
+
+    /* MODAL */
+    .modal{
+      display:none;
+      position:fixed;
+      top:0;left:0;
+      width:100%;height:100%;
+      background:rgba(0,0,0,.5);
+      z-index:1000;
+    }
+    .modal.show{display:flex;align-items:center;justify-content:center}
+    .modal-content{
+      background:#fff;
+      border-radius:12px;
+      padding:2rem;
+      max-width:500px;
+      width:90%;
+      max-height:90vh;
+      overflow-y:auto;
+    }
+    .modal-content.large{max-width:700px}
+    .modal-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:1.5rem;
+    }
+    .close-modal{
+      background:none;
+      border:none;
+      font-size:24px;
+      cursor:pointer;
+      color:#718096;
+    }
+
+    /* NOTIFICATION */
+    .notification{
+      position:fixed;
+      top:20px;right:20px;
+      padding:15px 20px;
+      border-radius:8px;
+      color:#fff;
+      font-weight:500;
+      z-index:1001;
+      transform:translateX(400px);
+      transition:transform .3s;
+      max-width:300px;
+    }
+    .notification.show{transform:translateX(0)}
+    .notification.success{background:#48bb78}
+    .notification.error{background:#e53e3e}
+    .notification.warning{background:#ed8936}
+    .notification.info{background:#4299e1}
+
+    /* SECTIONS */
+    .section{display:none}
+    .section.active{display:block}
+
+    /* FILTERS */
+    .filters{
+      display:flex;
+      gap:15px;
+      margin-bottom:20px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .filters select,
+    .filters input{
+      padding:8px 12px;
+      border:2px solid #e2e8f0;
+      border-radius:6px;
+      font-size:14px;
+    }
+
+    /* SPLIT MODAL SPECIFIC STYLES */
+    .email-input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+
+    .split-email {
+      flex: 1;
+      padding: 8px 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .split-email:focus {
+      border-color: #667eea;
+      outline: none;
+    }
+
+    .split-email.valid {
+      border-color: #48bb78;
+      background-color: #f0fff4;
+    }
+
+    .split-email.invalid {
+      border-color: #e53e3e;
+      background-color: #fef5f5;
+    }
+
+    .validation-message {
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .validation-message.valid {
+      color: #48bb78;
+    }
+
+    .validation-message.invalid {
+      color: #e53e3e;
+    }
+
+    .split-preview {
+      background: #f8f9ff;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      margin-top: 15px;
+    }
+
+    .preview-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .preview-item:last-child {
+      border-bottom: none;
+      font-weight: bold;
+      background: #667eea;
+      color: white;
+      padding: 10px;
+      margin: 10px -15px -15px;
+      border-radius: 0 0 6px 6px;
+    }
+
+    .custom-share-input {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .custom-share-input label {
+      flex: 1;
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .custom-share-input input {
+      width: 120px;
+      padding: 6px;
+      border: 2px solid #e2e8f0;
+      border-radius: 4px;
+    }
+
+    .remove-email-btn {
+      color: #e53e3e;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 5px;
+    }
+
+    .error-message {
+      color: #e53e3e;
+      font-size: 14px;
+      margin-top: 10px;
+      display: none;
+      text-align: center;
+    }
+
+    .success-message {
+      color: #48bb78;
+      font-size: 14px;
+      margin-top: 10px;
+      display: none;
+      text-align: center;
+    }
+
+    /* SPLIT DETAILS */
+    .split-participant {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .split-participant.paid {
+      border-left: 4px solid #48bb78;
+    }
+
+    .split-participant.unpaid {
+      border-left: 4px solid #e53e3e;
+    }
+
+    .progress-bar {
+      background: #e2e8f0;
+      border-radius: 10px;
+      height: 20px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .progress-fill {
+      background: linear-gradient(90deg, #48bb78, #38a169);
+      height: 100%;
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    /* BALANCE BREAKDOWN */
+    .balance-breakdown {
+      background: #f8f9ff;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+
+    .balance-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .balance-item:last-child {
+      border-bottom: none;
+    }
+
+    .balance-item.positive {
+      color: #48bb78;
+    }
+
+    .balance-item.negative {
+      color: #e53e3e;
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #e2e8f0;
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      padding: 12px 20px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      border-bottom-color: #667eea;
+      color: #667eea;
+      font-weight: 600;
+    }
+
+    .tab:hover {
+      background: #f8f9ff;
+    }
+
+    /* STATS CARDS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: #f8f9ff;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      border-left: 4px solid #667eea;
+    }
+
+    .stat-number {
+      font-size: 24px;
+      font-weight: bold;
+      color: #2d3748;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: #718096;
+      margin-top: 5px;
+    }
+
+    /* RESPONSIVE */
+    @media(max-width:768px){
+      .header,.container,.nav{padding:0 1rem}
+      .dashboard-grid{grid-template-columns:1fr}
+      .nav{overflow-x:auto}
+      .item{flex-direction:column;align-items:flex-start;gap:10px}
+      .filters{flex-direction:column;align-items:stretch}
+      .modal-content{padding:1rem;margin:1rem}
+    }
+  </style>
+</head>
+
+<body>
+  <!-- =====================  HEADER  ===================== -->
+  <div class="header">
+    <div class="logo">💰 FinSplit</div>
+    <div class="user-info">
+      <div class="avatar" id="userAvatar">JD</div>
+      <div>
+        <div id="userName">John Doe</div>
+        <div id="userEmail" style="font-size:12px;opacity:.8;">john@example.com</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+    </div>
+  </div>
+
+  <!-- =====================  NAVIGATION  ===================== -->
+  <div class="nav">
+    <div class="nav-item active" onclick="showSection('dashboard',event)">📊 Dashboard</div>
+    <div class="nav-item" onclick="showSection('expenses',event)">💰 Expenses</div>
+    <div class="nav-item" onclick="showSection('splits',event)">🔀 Splits</div>
+    <div class="nav-item" onclick="showSection('groups',event)">👥 Groups</div>
+    <div class="nav-item" onclick="showSection('budget',event)">📋 Budget</div>
+  </div>
+
+  <!-- =====================  MAIN CONTAINER  ===================== -->
+  <div class="container">
+
+    <!-- ===== DASHBOARD ===== -->
+    <div id="dashboard" class="section active">
+      <div class="dashboard-grid">
+        <div class="card balance-card">
+          <div class="balance-label">Total Spending</div>
+          <div class="balance-amount" id="totalBalance">₹0</div>
+          <div class="balance-label">Personal + Splits</div>
+        </div>
+        <div class="card">
+          <div class="balance-label">You're Owed</div>
+          <div class="balance-amount" style="color:#48bb78" id="owedToYou">₹0</div>
+          <div class="balance-label">From friends</div>
+        </div>
+        <div class="card">
+          <div class="balance-label">You Owe</div>
+          <div class="balance-amount" style="color:#e53e3e" id="youOwe">₹0</div>
+          <div class="balance-label">To friends</div>
+        </div>
+        <div class="card">
+          <div class="balance-label">This Month</div>
+          <div class="balance-amount" style="color:#667eea" id="monthlySpent">₹0</div>
+          <div class="balance-label">Total spent</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Quick Actions</div>
+        <div style="display:flex;gap:15px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="openModal('addExpenseModal')">➕ Add Expense</button>
+          <button class="btn btn-secondary" onclick="openModal('createSplitModal')">🔀 Create Split</button>
+          <button class="btn btn-secondary" onclick="openModal('createGroupModal')">👥 New Group</button>
+          <button class="btn btn-secondary" onclick="exportExpenses()">📊 Export Data</button>
+        </div>
+      </div>
+
+      <!-- Balance Breakdown -->
+      <div class="card" id="balanceBreakdownCard" style="display:none;">
+        <div class="card-title">Balance Breakdown</div>
+        <div id="balanceBreakdown"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Recent Activity</div>
+        <ul class="item-list" id="recentActivity"></ul>
+      </div>
+    </div>
+
+    <!-- ===== EXPENSES ===== -->
+    <div id="expenses" class="section">
+      <div class="card">
+        <div class="card-title">
+          Personal Expenses
+          <button class="btn btn-primary btn-small" style="float:right"
+                  onclick="openModal('addExpenseModal')">➕ Add Expense</button>
+        </div>
+        
+        <!-- Filters -->
+        <div class="filters">
+          <select id="expenseCategory" onchange="loadExpenses()">
+            <option value="all">All Categories</option>
+            <option value="Food & Dining">Food & Dining</option>
+            <option value="Transportation">Transportation</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Bills & Utilities">Bills & Utilities</option>
+            <option value="Healthcare">Healthcare</option>
+            <option value="Split">Splits</option>
+            <option value="Others">Others</option>
+          </select>
+          
+          <input type="text" id="expenseSearch" placeholder="Search expenses..." onkeyup="debounceSearchExpenses()">
+          
+          <input type="date" id="expenseStartDate" onchange="loadExpenses()">
+          <input type="date" id="expenseEndDate" onchange="loadExpenses()">
+          
+          <button class="btn btn-secondary btn-small" onclick="clearExpenseFilters()">Clear</button>
+          <button class="btn btn-secondary btn-small" onclick="exportExpenses()">Export</button>
+        </div>
+        
+        <ul class="item-list" id="expensesList"></ul>
+      </div>
+    </div>
+
+    <!-- ===== SPLITS ===== -->
+    <div id="splits" class="section">
+      <div class="card">
+        <div class="card-title">
+          Split Management
+          <button class="btn btn-primary btn-small" style="float:right"
+                  onclick="openModal('createSplitModal')">🔀 Create Split</button>
+        </div>
+
+        <!-- Split Tabs -->
+        <div class="tabs">
+          <div class="tab active" onclick="switchSplitTab('all', event)">All Splits</div>
+          <div class="tab" onclick="switchSplitTab('pending', event)">Pending</div>
+          <div class="tab" onclick="switchSplitTab('settled', event)">Settled</div>
+        </div>
+        
+        <!-- Split Filters -->
+        <div class="filters">
+          <select id="splitCategory" onchange="loadSplits()">
+            <option value="all">All Categories</option>
+            <option value="Food & Dining">Food & Dining</option>
+            <option value="Transportation">Transportation</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Bills & Utilities">Bills & Utilities</option>
+            <option value="Healthcare">Healthcare</option>
+            <option value="Others">Others</option>
+          </select>
+          
+          <input type="date" id="splitStartDate" onchange="loadSplits()">
+          <input type="date" id="splitEndDate" onchange="loadSplits()">
+          
+          <button class="btn btn-secondary btn-small" onclick="clearSplitFilters()">Clear</button>
+        </div>
+        
+        <ul class="item-list" id="splitsList"></ul>
+      </div>
+    </div>
+
+    <!-- ===== GROUPS PLACEHOLDER ===== -->
+    <div id="groups" class="section">
+      <div class="card">
+        <div class="card-title">
+          Your Groups
+          <button class="btn btn-primary btn-small" style="float:right"
+                  onclick="openModal('createGroupModal')">👥 New Group</button>
+        </div>
+        <p style="padding:20px 0;text-align:center;color:#718096;">
+          Groups feature coming soon! This will allow you to organize splits by groups like "Roommates", "Office Team", etc.
+        </p>
+      </div>
+    </div>
+
+    <!-- ===== BUDGET PLACEHOLDER ===== -->
+    <div id="budget" class="section">
+      <div class="card">
+        <div class="card-title">Monthly Budget Overview</div>
+        <p style="padding:20px 0;text-align:center;color:#718096;">
+          Budget tracking and goals feature coming soon! Set spending limits and track your progress.
+        </p>
+      </div>
+    </div>
+
+  </div> <!-- /container -->
+
+  <!-- =====================  MODALS  ===================== -->
+
+  <!-- ADD EXPENSE -->
+  <div id="addExpenseModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="addExpenseModalTitle">Add New Expense</h3>
+        <button class="close-modal" onclick="closeModal('addExpenseModal')">&times;</button>
+      </div>
+      <form onsubmit="saveExpense(event)">
+        <div class="form-group">
+          <label>Amount (₹)</label>
+          <input type="number" id="expenseAmountInput" required min="0.01" step="0.01" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" id="expenseDescriptionInput" required />
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="expenseCategoryInput" required>
+            <option value="">Select Category</option>
+            <option>Food & Dining</option>
+            <option>Transportation</option>
+            <option>Shopping</option>
+            <option>Entertainment</option>
+            <option>Bills & Utilities</option>
+            <option>Healthcare</option>
+            <option>Others</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="expenseDateInput" />
+        </div>
+        <div class="form-group">
+          <label>Notes (Optional)</label>
+          <textarea id="expenseNotesInput" placeholder="Any additional notes..."></textarea>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:20px">
+          <button type="submit" class="btn btn-primary" style="flex:1" id="saveExpenseBtn">💰 Save Expense</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('addExpenseModal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CREATE SPLIT MODAL -->
+  <div id="createSplitModal" class="modal">
+    <div class="modal-content large">
+      <div class="modal-header">
+        <h3>Create Split</h3>
+        <button class="close-modal" onclick="closeModal('createSplitModal')">&times;</button>
+      </div>
+      <form onsubmit="createSplit(event)">
+        <div class="form-group">
+          <label>Total Amount (₹)</label>
+          <input type="number" id="splitAmount" required min="0.01" step="0.01" placeholder="Enter total expense amount" />
+        </div>
+        
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" id="splitDescription" required placeholder="What was this expense for?" />
+        </div>
+
+        <div class="form-group">
+          <label>Category</label>
+          <select id="splitCategoryInput">
+            <option value="Split">Split</option>
+            <option value="Food & Dining">Food & Dining</option>
+            <option value="Transportation">Transportation</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Bills & Utilities">Bills & Utilities</option>
+            <option value="Healthcare">Healthcare</option>
+            <option value="Others">Others</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Split Type</label>
+          <select id="splitType" onchange="handleSplitTypeChange()" required>
+            <option value="equal">Split Equally</option>
+            <option value="exact">Enter Exact Amounts</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Split With (Email Addresses)</label>
+          <div id="emailInputContainer">
+            <div class="email-input-row">
+              <input type="email" class="split-email" placeholder="friend@example.com" />
+              <button type="button" class="btn btn-secondary btn-small" onclick="addEmailInput()">+</button>
+            </div>
+          </div>
+          <div id="emailValidation" class="validation-message"></div>
+        </div>
+
+        <div id="customSharesContainer" style="display: none;">
+          <div class="form-group">
+            <label>Custom Amounts</label>
+            <div id="customSharesInputs">
+              <!-- Dynamic inputs will be added here -->
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Notes (Optional)</label>
+          <textarea id="splitNotesInput" placeholder="Any additional notes about this split..."></textarea>
+        </div>
+
+        <div id="splitPreview" class="split-preview" style="display: none;">
+          <h4>Split Preview:</h4>
+          <div id="previewContent"></div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:20px">
+          <button type="submit" class="btn btn-primary" id="createSplitBtn" style="flex:1">Create Split</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('createSplitModal')">Cancel</button>
+        </div>
+        
+        <div id="splitError" class="error-message"></div>
+        <div id="splitSuccess" class="success-message"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SPLIT DETAILS MODAL -->
+  <div id="splitDetailsModal" class="modal">
+    <div class="modal-content large">
+      <div class="modal-header">
+        <h3 id="splitDetailsTitle">Split Details</h3>
+        <button class="close-modal" onclick="closeModal('splitDetailsModal')">&times;</button>
+      </div>
+      <div id="splitDetailsContent">
+        <!-- Content will be loaded dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- CONVERT TO SPLIT MODAL -->
+  <div id="convertToSplitModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Convert to Split</h3>
+        <button class="close-modal" onclick="closeModal('convertToSplitModal')">&times;</button>
+      </div>
+      <form onsubmit="convertExpenseToSplit(event)">
+        <div class="form-group">
+          <label>Current Expense</label>
+          <div id="currentExpenseDetails" style="background:#f8f9fa;padding:12px;border-radius:8px;">
+            <!-- Expense details will be shown here -->
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Split Type</label>
+          <select id="convertSplitType" onchange="handleConvertSplitTypeChange()" required>
+            <option value="equal">Split Equally</option>
+            <option value="exact">Enter Exact Amounts</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Split With (Email Addresses)</label>
+          <div id="convertEmailInputContainer">
+            <div class="email-input-row">
+              <input type="email" class="split-email convert-email" placeholder="friend@example.com" />
+              <button type="button" class="btn btn-secondary btn-small" onclick="addConvertEmailInput()">+</button>
+            </div>
+          </div>
+          <div id="convertEmailValidation" class="validation-message"></div>
+        </div>
+
+        <div id="convertCustomSharesContainer" style="display: none;">
+          <div class="form-group">
+            <label>Custom Amounts</label>
+            <div id="convertCustomSharesInputs">
+              <!-- Dynamic inputs will be added here -->
+            </div>
+          </div>
+        </div>
+
+        <div id="convertSplitPreview" class="split-preview" style="display: none;">
+          <h4>Split Preview:</h4>
+          <div id="convertPreviewContent"></div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:20px">
+          <button type="submit" class="btn btn-primary" id="convertToSplitBtn" style="flex:1">Convert to Split</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('convertToSplitModal')">Cancel</button>
+        </div>
+        
+        <div id="convertSplitError" class="error-message"></div>
+        <div id="convertSplitSuccess" class="success-message"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- REMINDER MODAL -->
+  <div id="reminderModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Send Payment Reminder</h3>
+        <button class="close-modal" onclick="closeModal('reminderModal')">&times;</button>
+      </div>
+      <form onsubmit="sendReminder(event)">
+        <div class="form-group">
+          <label>Custom Message (Optional)</label>
+          <textarea id="reminderMessage" placeholder="Hey! Just a friendly reminder about our split for..."></textarea>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:20px">
+          <button type="submit" class="btn btn-primary" style="flex:1">Send Reminder</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('reminderModal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SETTLE ALL MODAL -->
+  <div id="settleAllModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Settle All Debts</h3>
+        <button class="close-modal" onclick="closeModal('settleAllModal')">&times;</button>
+      </div>
+      <form onsubmit="settleAllDebts(event)">
+        <div id="settleAllDetails">
+          <!-- Settlement details will be shown here -->
+        </div>
+        
+        <div class="form-group">
+          <label>Payment Method</label>
+          <select id="settlePaymentMethod">
+            <option value="manual">Manual Payment</option>
+            <option value="upi">UPI Payment</option>
+            <option value="cash">Cash</option>
+            <option value="bank_transfer">Bank Transfer</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Transaction ID (Optional)</label>
+          <input type="text" id="settleTransactionId" placeholder="Enter transaction reference...">
+        </div>
+        
+        <div style="display:flex;gap:10px;margin-top:20px">
+          <button type="submit" class="btn btn-primary" style="flex:1">Mark as Settled</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('settleAllModal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- GROUP PLACEHOLDER -->
+  <div id="createGroupModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Create Group (Coming Soon)</h3>
+        <button class="close-modal" onclick="closeModal('createGroupModal')">&times;</button>
+      </div>
+      <p style="padding:20px 0;text-align:center;color:#718096;">
+        Group functionality will be available in the next update!<br><br>
+        You'll be able to create groups like "Roommates", "Office Team", "Trip Buddies" 
+        and manage all splits within those groups easily.
+      </p>
+    </div>
+  </div>
+
+  <!-- =====================  NOTIFICATION  ===================== -->
+  <div id="notification" class="notification"></div>
+
+  <!-- =====================  SCRIPTS  ===================== -->
+  <script>
+    /* ---------- CONFIG ---------- */
+    const API_BASE = 'http://localhost:5000/api';
+    let currentUser = null;
+    let expensesCache = [];
+    let splitsCache = [];
+    let currentSplitStatus = 'all';
+    let currentEditingExpenseId = null;
+    let currentConvertingExpenseId = null;
+    let currentReminderSplitId = null;
+    let currentSettleUserId = null;
+
+    /* ---------- SPLIT FUNCTIONALITY ---------- */
+    let emailValidationTimeout;
+    let validatedEmails = [];
+    let convertValidatedEmails = [];
+    let searchTimeout;
+
+    // Add new email input field
+    function addEmailInput() {
+      const container = document.getElementById('emailInputContainer');
+      const newRow = document.createElement('div');
+      newRow.className = 'email-input-row';
+      newRow.innerHTML = `
+        <input type="email" class="split-email" placeholder="friend@example.com" />
+        <button type="button" class="btn btn-danger btn-small remove-email-btn" onclick="removeEmailInput(this)">×</button>
+      `;
+      container.appendChild(newRow);
+      
+      const emailInput = newRow.querySelector('.split-email');
+      emailInput.addEventListener('input', debounceValidateEmails);
+    }
+
+    // Add new email input for convert modal
+    function addConvertEmailInput() {
+      const container = document.getElementById('convertEmailInputContainer');
+      const newRow = document.createElement('div');
+      newRow.className = 'email-input-row';
+      newRow.innerHTML = `
+        <input type="email" class="split-email convert-email" placeholder="friend@example.com" />
+        <button type="button" class="btn btn-danger btn-small remove-email-btn" onclick="removeConvertEmailInput(this)">×</button>
+      `;
+      container.appendChild(newRow);
+      
+      const emailInput = newRow.querySelector('.convert-email');
+      emailInput.addEventListener('input', debounceValidateConvertEmails);
+    }
+
+    // Remove email input field
+    function removeEmailInput(button) {
+      button.parentElement.remove();
+      debounceValidateEmails();
+    }
+
+    function removeConvertEmailInput(button) {
+      button.parentElement.remove();
+      debounceValidateConvertEmails();
+    }
+
+    // Handle split type change
+    function handleSplitTypeChange() {
+      const splitType = document.getElementById('splitType').value;
+      const customContainer = document.getElementById('customSharesContainer');
+      
+      if (splitType === 'exact') {
+        customContainer.style.display = 'block';
+        updateCustomSharesInputs();
+      } else {
+        customContainer.style.display = 'none';
+      }
+      
+      updateSplitPreview();
+    }
+
+    function handleConvertSplitTypeChange() {
+      const splitType = document.getElementById('convertSplitType').value;
+      const customContainer = document.getElementById('convertCustomSharesContainer');
+      
+      if (splitType === 'exact') {
+        customContainer.style.display = 'block';
+        updateConvertCustomSharesInputs();
+      } else {
+        customContainer.style.display = 'none';
+      }
+      
+      updateConvertSplitPreview();
+    }
+
+    // Debounce email validation
+    function debounceValidateEmails() {
+      clearTimeout(emailValidationTimeout);
+      emailValidationTimeout = setTimeout(validateEmails, 800);
+    }
+
+    function debounceValidateConvertEmails() {
+      clearTimeout(emailValidationTimeout);
+      emailValidationTimeout = setTimeout(validateConvertEmails, 800);
+    }
+
+    // Validate email addresses
+    async function validateEmails() {
+      const emailInputs = document.querySelectorAll('#emailInputContainer .split-email');
+      const emails = Array.from(emailInputs)
+        .map(input => input.value.trim())
+        .filter(email => email.length > 0);
+
+      if (emails.length === 0) {
+        document.getElementById('emailValidation').innerHTML = '';
+        validatedEmails = [];
+        updateSplitPreview();
+        return;
+      }
+
+      try {
+        const response = await apiCall('/splits/validate-emails', {
+          method: 'POST',
+          body: JSON.stringify({ emails })
+        });
+
+        validatedEmails = response.data.valid;
+        const invalidEmails = response.data.invalid;
+
+        emailInputs.forEach(input => {
+          const email = input.value.trim().toLowerCase();
+          if (email) {
+            if (response.data.valid.some(v => v.email.toLowerCase() === email)) {
+              input.className = 'split-email valid';
+            } else if (response.data.invalid.includes(email)) {
+              input.className = 'split-email invalid';
+            } else {
+              input.className = 'split-email';
+            }
+          }
+        });
+
+        let validationHtml = '';
+        if (validatedEmails.length > 0) {
+          validationHtml += `<div class="valid">✓ Valid users: ${validatedEmails.map(u => u.name).join(', ')}</div>`;
+        }
+        if (invalidEmails.length > 0) {
+          validationHtml += `<div class="invalid">✗ Not registered: ${invalidEmails.join(', ')}</div>`;
+        }
+
+        document.getElementById('emailValidation').innerHTML = validationHtml;
+        
+        if (document.getElementById('splitType').value === 'exact') {
+          updateCustomSharesInputs();
+        }
+        updateSplitPreview();
+
+      } catch (error) {
+        console.error('Email validation error:', error);
+      }
+    }
+
+    async function validateConvertEmails() {
+      const emailInputs = document.querySelectorAll('#convertEmailInputContainer .convert-email');
+      const emails = Array.from(emailInputs)
+        .map(input => input.value.trim())
+        .filter(email => email.length > 0);
+
+      if (emails.length === 0) {
+        document.getElementById('convertEmailValidation').innerHTML = '';
+        convertValidatedEmails = [];
+        updateConvertSplitPreview();
+        return;
+      }
+
+      try {
+        const response = await apiCall('/splits/validate-emails', {
+          method: 'POST',
+          body: JSON.stringify({ emails })
+        });
+
+        convertValidatedEmails = response.data.valid;
+        const invalidEmails = response.data.invalid;
+
+        emailInputs.forEach(input => {
+          const email = input.value.trim().toLowerCase();
+          if (email) {
+            if (response.data.valid.some(v => v.email.toLowerCase() === email)) {
+              input.className = 'split-email convert-email valid';
+            } else if (response.data.invalid.includes(email)) {
+              input.className = 'split-email convert-email invalid';
+            } else {
+              input.className = 'split-email convert-email';
+            }
+          }
+        });
+
+        let validationHtml = '';
+        if (convertValidatedEmails.length > 0) {
+          validationHtml += `<div class="valid">✓ Valid users: ${convertValidatedEmails.map(u => u.name).join(', ')}</div>`;
+        }
+        if (invalidEmails.length > 0) {
+          validationHtml += `<div class="invalid">✗ Not registered: ${invalidEmails.join(', ')}</div>`;
+        }
+
+        document.getElementById('convertEmailValidation').innerHTML = validationHtml;
+        
+        if (document.getElementById('convertSplitType').value === 'exact') {
+          updateConvertCustomSharesInputs();
+        }
+        updateConvertSplitPreview();
+
+      } catch (error) {
+        console.error('Convert email validation error:', error);
+      }
+    }
+
+    // Update custom shares inputs
+    function updateCustomSharesInputs() {
+      const container = document.getElementById('customSharesInputs');
+      const totalPeople = validatedEmails.length + 1;
+
+      if (totalPeople < 2) {
+        container.innerHTML = '<p>Add email addresses to see custom amount fields</p>';
+        return;
+      }
+
+      let inputsHtml = '';
+      
+      inputsHtml += `
+        <div class="custom-share-input">
+          <label>You:</label>
+          <input type="number" class="custom-share" min="0" step="0.01" placeholder="0.00" onchange="updateSplitPreview()" />
+        </div>
+      `;
+
+      validatedEmails.forEach(user => {
+        inputsHtml += `
+          <div class="custom-share-input">
+            <label>${user.name} (${user.email}):</label>
+            <input type="number" class="custom-share" min="0" step="0.01" placeholder="0.00" onchange="updateSplitPreview()" />
+          </div>
+        `;
+      });
+
+      container.innerHTML = inputsHtml;
+    }
+
+    function updateConvertCustomSharesInputs() {
+      const container = document.getElementById('convertCustomSharesInputs');
+      const totalPeople = convertValidatedEmails.length + 1;
+
+      if (totalPeople < 2) {
+        container.innerHTML = '<p>Add email addresses to see custom amount fields</p>';
+        return;
+      }
+
+      let inputsHtml = '';
+      
+      inputsHtml += `
+        <div class="custom-share-input">
+          <label>You:</label>
+          <input type="number" class="convert-custom-share" min="0" step="0.01" placeholder="0.00" onchange="updateConvertSplitPreview()" />
+        </div>
+      `;
+
+      convertValidatedEmails.forEach(user => {
+        inputsHtml += `
+          <div class="custom-share-input">
+            <label>${user.name} (${user.email}):</label>
+            <input type="number" class="convert-custom-share" min="0" step="0.01" placeholder="0.00" onchange="updateConvertSplitPreview()" />
+          </div>
+        `;
+      });
+
+      container.innerHTML = inputsHtml;
+    }
+
+    // Update split preview
+    function updateSplitPreview() {
+      const amount = parseFloat(document.getElementById('splitAmount').value) || 0;
+      const splitType = document.getElementById('splitType').value;
+      const previewContainer = document.getElementById('splitPreview');
+      const previewContent = document.getElementById('previewContent');
+
+      if (amount === 0 || validatedEmails.length === 0) {
+        previewContainer.style.display = 'none';
+        return;
+      }
+
+      const totalPeople = validatedEmails.length + 1;
+      let previewHtml = '';
+
+      if (splitType === 'equal') {
+        const shareAmount = +(amount / totalPeople).toFixed(2);
+        
+        previewHtml += `<div class="preview-item"><span>You:</span><span>₹${shareAmount}</span></div>`;
+        validatedEmails.forEach(user => {
+          previewHtml += `<div class="preview-item"><span>${user.name}:</span><span>₹${shareAmount}</span></div>`;
+        });
+        previewHtml += `<div class="preview-item"><span>Total:</span><span>₹${amount.toFixed(2)}</span></div>`;
+        
+      } else if (splitType === 'exact') {
+        const customInputs = document.querySelectorAll('.custom-share');
+        let totalCustom = 0;
+        
+        customInputs.forEach((input, index) => {
+          const value = parseFloat(input.value) || 0;
+          totalCustom += value;
+          
+          if (index === 0) {
+            previewHtml += `<div class="preview-item"><span>You:</span><span>₹${value.toFixed(2)}</span></div>`;
+          } else {
+            const user = validatedEmails[index - 1];
+            previewHtml += `<div class="preview-item"><span>${user.name}:</span><span>₹${value.toFixed(2)}</span></div>`;
+          }
+        });
+        
+        const isValid = Math.abs(totalCustom - amount) < 0.01;
+        previewHtml += `<div class="preview-item" style="color: ${isValid ? 'white' : '#e53e3e'}">
+          <span>Total: ${isValid ? '✓' : '✗'}</span>
+          <span>₹${totalCustom.toFixed(2)} / ₹${amount.toFixed(2)}</span>
+        </div>`;
+      }
+
+      previewContent.innerHTML = previewHtml;
+      previewContainer.style.display = 'block';
+    }
+
+    function updateConvertSplitPreview() {
+      const expenseAmount = currentConvertingExpenseId ? 
+        expensesCache.find(e => e._id === currentConvertingExpenseId)?.amount || 0 : 0;
+      const splitType = document.getElementById('convertSplitType').value;
+      const previewContainer = document.getElementById('convertSplitPreview');
+      const previewContent = document.getElementById('convertPreviewContent');
+
+      if (expenseAmount === 0 || convertValidatedEmails.length === 0) {
+        previewContainer.style.display = 'none';
+        return;
+      }
+
+      const totalPeople = convertValidatedEmails.length + 1;
+      let previewHtml = '';
+
+      if (splitType === 'equal') {
+        const shareAmount = +(expenseAmount / totalPeople).toFixed(2);
+        
+        previewHtml += `<div class="preview-item"><span>You:</span><span>₹${shareAmount}</span></div>`;
+        convertValidatedEmails.forEach(user => {
+          previewHtml += `<div class="preview-item"><span>${user.name}:</span><span>₹${shareAmount}</span></div>`;
+        });
+        previewHtml += `<div class="preview-item"><span>Total:</span><span>₹${expenseAmount.toFixed(2)}</span></div>`;
+        
+      } else if (splitType === 'exact') {
+        const customInputs = document.querySelectorAll('.convert-custom-share');
+        let totalCustom = 0;
+        
+        customInputs.forEach((input, index) => {
+          const value = parseFloat(input.value) || 0;
+          totalCustom += value;
+          
+          if (index === 0) {
+            previewHtml += `<div class="preview-item"><span>You:</span><span>₹${value.toFixed(2)}</span></div>`;
+          } else {
+            const user = convertValidatedEmails[index - 1];
+            previewHtml += `<div class="preview-item"><span>${user.name}:</span><span>₹${value.toFixed(2)}</span></div>`;
+          }
+        });
+        
+        const isValid = Math.abs(totalCustom - expenseAmount) < 0.01;
+        previewHtml += `<div class="preview-item" style="color: ${isValid ? 'white' : '#e53e3e'}">
+          <span>Total: ${isValid ? '✓' : '✗'}</span>
+          <span>₹${totalCustom.toFixed(2)} / ₹${expenseAmount.toFixed(2)}</span>
+        </div>`;
+      }
+
+      previewContent.innerHTML = previewHtml;
+      previewContainer.style.display = 'block';
+    }
+
+    // Create split
+    async function createSplit(event) {
+      event.preventDefault();
+      
+      const createBtn = document.getElementById('createSplitBtn');
+      createBtn.disabled = true;
+      createBtn.textContent = 'Creating Split...';
+      
+      document.getElementById('splitError').style.display = 'none';
+      document.getElementById('splitSuccess').style.display = 'none';
+
+      try {
+        const amount = parseFloat(document.getElementById('splitAmount').value);
+        const description = document.getElementById('splitDescription').value;
+        const splitType = document.getElementById('splitType').value;
+        const category = document.getElementById('splitCategoryInput').value;
+        const notes = document.getElementById('splitNotesInput').value;
+
+        if (validatedEmails.length === 0) {
+          throw new Error('Please add at least one valid email address to split with');
+        }
+
+        const payload = {
+          amount,
+          description,
+          splitWith: validatedEmails.map(u => u.email),
+          splitType,
+          category,
+          notes
+        };
+
+        if (splitType === 'exact') {
+          const customInputs = document.querySelectorAll('.custom-share');
+          const shares = Array.from(customInputs).map(input => parseFloat(input.value) || 0);
+          const totalShares = shares.reduce((sum, share) => sum + share, 0);
+          
+          if (Math.abs(totalShares - amount) > 0.01) {
+            throw new Error(`Total shares (₹${totalShares.toFixed(2)}) must equal expense amount (₹${amount.toFixed(2)})`);
+          }
+          
+          payload.customShares = shares;
+        }
+
+        const response = await apiCall('/splits', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        document.getElementById('splitSuccess').textContent = response.message;
+        document.getElementById('splitSuccess').style.display = 'block';
+        
+        // Reset form
+        resetSplitForm();
+        
+        setTimeout(() => {
+          closeModal('createSplitModal');
+          if (document.getElementById('splits').classList.contains('active')) {
+            loadSplits();
+          }
+          loadDashboard();
+        }, 2000);
+
+      } catch (error) {
+        document.getElementById('splitError').textContent = error.message || 'Failed to create split';
+        document.getElementById('splitError').style.display = 'block';
+      } finally {
+        createBtn.disabled = false;
+        createBtn.textContent = 'Create Split';
+      }
+    }
+
+    function resetSplitForm() {
+      document.getElementById('createSplitModal').querySelector('form').reset();
+      document.getElementById('emailInputContainer').innerHTML = `
+        <div class="email-input-row">
+          <input type="email" class="split-email" placeholder="friend@example.com" />
+          <button type="button" class="btn btn-secondary btn-small" onclick="addEmailInput()">+</button>
+        </div>
+      `;
+      document.getElementById('emailValidation').innerHTML = '';
+      document.getElementById('splitPreview').style.display = 'none';
+      document.getElementById('customSharesContainer').style.display = 'none';
+      validatedEmails = [];
+      
+      // Add event listener to first email input
+      const firstEmailInput = document.querySelector('.split-email');
+      if (firstEmailInput) {
+        firstEmailInput.addEventListener('input', debounceValidateEmails);
+      }
+    }
+
+    // Convert expense to split
+    function openConvertToSplitModal(expenseId) {
+      currentConvertingExpenseId = expenseId;
+      const expense = expensesCache.find(e => e._id === expenseId);
+      
+      if (!expense) {
+        showNotification('Expense not found', 'error');
+        return;
+      }
+
+      // Show current expense details
+      document.getElementById('currentExpenseDetails').innerHTML = `
+        <strong>${expense.description}</strong><br>
+        Amount: ₹${expense.amount}<br>
+        Category: ${expense.category}<br>
+        Date: ${new Date(expense.date).toLocaleDateString()}
+      `;
+
+      // Reset form
+      document.getElementById('convertToSplitModal').querySelector('form').reset();
+      document.getElementById('convertEmailInputContainer').innerHTML = `
+        <div class="email-input-row">
+          <input type="email" class="split-email convert-email" placeholder="friend@example.com" />
+          <button type="button" class="btn btn-secondary btn-small" onclick="addConvertEmailInput()">+</button>
+        </div>
+      `;
+      document.getElementById('convertEmailValidation').innerHTML = '';
+      document.getElementById('convertSplitPreview').style.display = 'none';
+      document.getElementById('convertCustomSharesContainer').style.display = 'none';
+      convertValidatedEmails = [];
+
+      // Add event listener
+      const firstEmailInput = document.querySelector('.convert-email');
+      if (firstEmailInput) {
+        firstEmailInput.addEventListener('input', debounceValidateConvertEmails);
+      }
+
+      openModal('convertToSplitModal');
+    }
+
+    async function convertExpenseToSplit(event) {
+      event.preventDefault();
+      
+      const convertBtn = document.getElementById('convertToSplitBtn');
+      convertBtn.disabled = true;
+      convertBtn.textContent = 'Converting...';
+      
+      document.getElementById('convertSplitError').style.display = 'none';
+      document.getElementById('convertSplitSuccess').style.display = 'none';
+
+      try {
+        const splitType = document.getElementById('convertSplitType').value;
+
+        if (convertValidatedEmails.length === 0) {
+          throw new Error('Please add at least one valid email address to split with');
+        }
+
+        const payload = {
+          splitWith: convertValidatedEmails.map(u => u.email),
+          splitType
+        };
+
+        if (splitType === 'exact') {
+          const customInputs = document.querySelectorAll('.convert-custom-share');
+          const shares = Array.from(customInputs).map(input => parseFloat(input.value) || 0);
+          const expenseAmount = expensesCache.find(e => e._id === currentConvertingExpenseId)?.amount || 0;
+          const totalShares = shares.reduce((sum, share) => sum + share, 0);
+          
+          if (Math.abs(totalShares - expenseAmount) > 0.01) {
+            throw new Error(`Total shares (₹${totalShares.toFixed(2)}) must equal expense amount (₹${expenseAmount.toFixed(2)})`);
+          }
+          
+          payload.customShares = shares;
+        }
+
+        const response = await apiCall(`/expenses/${currentConvertingExpenseId}/convert-to-split`, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        document.getElementById('convertSplitSuccess').textContent = response.message;
+        document.getElementById('convertSplitSuccess').style.display = 'block';
+        
+        setTimeout(() => {
+          closeModal('convertToSplitModal');
+          loadExpenses();
+          loadSplits();
+          loadDashboard();
+          currentConvertingExpenseId = null;
+        }, 2000);
+
+      } catch (error) {
+        document.getElementById('convertSplitError').textContent = error.message || 'Failed to convert to split';
+        document.getElementById('convertSplitError').style.display = 'block';
+      } finally {
+        convertBtn.disabled = false;
+        convertBtn.textContent = 'Convert to Split';
+      }
+    }
+    // Load splits
+    async function loadSplits() {
+      try {
+        const params = new URLSearchParams();
+        
+        if (currentSplitStatus !== 'all') {
+          params.append('status', currentSplitStatus);
+        }
+        
+        const category = document.getElementById('splitCategory')?.value;
+        if (category && category !== 'all') {
+          params.append('category', category);
+        }
+        
+        const startDate = document.getElementById('splitStartDate')?.value;
+        if (startDate) {
+          params.append('startDate', startDate);
+        }
+        
+        const endDate = document.getElementById('splitEndDate')?.value;
+        if (endDate) {
+          params.append('endDate', endDate);
+        }
+
+        const queryString = params.toString();
+        const url = queryString ? `/splits?${queryString}` : '/splits';
+        
+        const response = await apiCall(url);
+        splitsCache = response.data;
+        
+        const list = document.getElementById('splitsList');
+        if (splitsCache.length === 0) {
+          list.innerHTML = '<li class="item"><div class="item-info"><p>No splits found. Create your first split!</p></div></li>';
+          return;
+        }
+
+        list.innerHTML = splitsCache.map(split => {
+          const userSplit = split.splits.find(s => s.user._id === currentUser._id);
+          const isOwner = split.owner._id === currentUser._id;
+          const isPaid = userSplit ? userSplit.paid : false;
+          const userShare = userSplit ? userSplit.share : 0;
+          
+          const totalParticipants = split.splits.length;
+          const paidParticipants = split.splits.filter(s => s.paid).length;
+          const unpaidAmount = split.splits.filter(s => !s.paid).reduce((sum, s) => sum + s.share, 0);
+          const completionPercentage = ((paidParticipants / totalParticipants) * 100).toFixed(0);
+          
+          let statusText = '';
+          let actionButtons = '';
+          let statusClass = '';
+          
+          if (isOwner) {
+            statusText = `You paid ₹${split.amount} • ${paidParticipants}/${totalParticipants} paid (${completionPercentage}%)`;
+            if (unpaidAmount > 0) {
+              statusText += ` • ₹${unpaidAmount.toFixed(2)} pending`;
+            }
+            statusClass = split.isSettled ? 'settled' : 'pending';
+            
+            actionButtons = `
+              <button class="btn btn-secondary btn-small" onclick="viewSplitDetails('${split._id}')">View Details</button>
+              ${!split.isSettled ? `<button class="btn btn-warning btn-small" onclick="openReminderModal('${split._id}')">Send Reminder</button>` : ''}
+              ${paidParticipants === 0 ? `<button class="btn btn-danger btn-small" onclick="deleteSplit('${split._id}')">Delete</button>` : ''}
+            `;
+          } else {
+            statusText = `${split.owner.name} paid ₹${split.amount} • Your share: ₹${userShare.toFixed(2)}`;
+            statusClass = isPaid ? 'paid' : 'unpaid';
+            
+            if (!isPaid) {
+              actionButtons = `
+                <button class="btn btn-success btn-small" onclick="paySplit('${split._id}')">Pay ₹${userShare.toFixed(2)}</button>
+                <button class="btn btn-secondary btn-small" onclick="viewSplitDetails('${split._id}')">View Details</button>
+              `;
+            } else {
+              actionButtons = `
+                <span style="color: #48bb78; font-weight: bold;">✓ Paid</span>
+                <button class="btn btn-secondary btn-small" onclick="viewSplitDetails('${split._id}')">View Details</button>
+              `;
+            }
+          }
+          
+          return `
+            <li class="item ${statusClass}">
+              <div class="item-info">
+                <h4>${split.description}</h4>
+                <p>${statusText}</p>
+                <p style="font-size: 12px; color: #718096;">
+                  ${split.splitType === 'equal' ? 'Split equally' : 'Custom amounts'} • 
+                  ${split.category !== 'Split' ? split.category + ' • ' : ''}
+                  ${new Date(split.createdAt).toLocaleDateString()}
+                </p>
+                ${!split.isSettled && !isPaid && !isOwner ? `
+                  <div class="progress-bar" style="margin-top: 8px;">
+                    <div class="progress-fill" style="width: ${completionPercentage}%">
+                      ${completionPercentage}% Complete
+                    </div>
+                  </div>
+                ` : ''}
+              </div>
+              <div>
+                <div style="font-weight:bold;color:${isPaid || (isOwner && split.isSettled) ? '#48bb78' : '#e53e3e'};">
+                  ${isOwner 
+                    ? (split.isSettled ? `✓ Settled` : `+₹${(split.amount - (userSplit?.share || 0)).toFixed(2)}`) 
+                    : (isPaid ? '✓ Paid' : `-₹${userShare.toFixed(2)}`)
+                  }
+                </div>
+                <div class="item-actions">
+                  ${actionButtons}
+                </div>
+              </div>
+            </li>
+          `;
+        }).join('');
+      } catch (error) {
+        showNotification('Failed to load splits', 'error');
+      }
+    }
+
+    // Switch split tabs
+    function switchSplitTab(status, event) {
+      currentSplitStatus = status;
+      
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      loadSplits();
+    }
+
+    // Clear split filters
+    function clearSplitFilters() {
+      document.getElementById('splitCategory').value = 'all';
+      document.getElementById('splitStartDate').value = '';
+      document.getElementById('splitEndDate').value = '';
+      loadSplits();
+    }
+
+    // View split details
+    async function viewSplitDetails(splitId) {
+      try {
+        const response = await apiCall(`/splits/${splitId}`);
+        const split = response.data;
+        
+        document.getElementById('splitDetailsTitle').textContent = `Split: ${split.description}`;
+        
+        const isOwner = split.owner._id === currentUser._id;
+        const userSplit = split.splits.find(s => s.user._id === currentUser._id);
+        
+        let detailsHtml = `
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-number">₹${split.amount}</div>
+              <div class="stat-label">Total Amount</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">${split.stats.totalParticipants}</div>
+              <div class="stat-label">Participants</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">${split.stats.totalPaid}</div>
+              <div class="stat-label">Paid</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">${split.stats.completionPercentage}%</div>
+              <div class="stat-label">Complete</div>
+            </div>
+          </div>
+
+          <div style="margin: 20px 0;">
+            <h4 style="margin-bottom: 15px;">Split Details</h4>
+            <p><strong>Created by:</strong> ${split.owner.name} (${split.owner.email})</p>
+            <p><strong>Category:</strong> ${split.category}</p>
+            <p><strong>Split type:</strong> ${split.splitType === 'equal' ? 'Equal shares' : 'Custom amounts'}</p>
+            <p><strong>Created on:</strong> ${new Date(split.createdAt).toLocaleDateString()}</p>
+            ${split.notes ? `<p><strong>Notes:</strong> ${split.notes}</p>` : ''}
+            ${split.isSettled ? `<p><strong>Settled on:</strong> ${new Date(split.settledAt).toLocaleDateString()}</p>` : ''}
+          </div>
+
+          <div style="margin: 20px 0;">
+            <h4 style="margin-bottom: 15px;">Participants</h4>
+        `;
+
+        split.splits.forEach(splitItem => {
+          const isPaid = splitItem.paid;
+          const isCurrentUser = splitItem.user._id === currentUser._id;
+          
+          detailsHtml += `
+            <div class="split-participant ${isPaid ? 'paid' : 'unpaid'}">
+              <div>
+                <strong>${splitItem.user.name}</strong> ${isCurrentUser ? '(You)' : ''}
+                <br>
+                <small>${splitItem.user.email}</small>
+                ${isPaid && splitItem.paidAt ? `
+                  <br><small style="color: #48bb78;">Paid on ${new Date(splitItem.paidAt).toLocaleDateString()}</small>
+                ` : ''}
+                ${splitItem.paymentMethod ? `<br><small>via ${splitItem.paymentMethod}</small>` : ''}
+                ${splitItem.transactionId ? `<br><small>Ref: ${splitItem.transactionId}</small>` : ''}
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 18px; font-weight: bold; color: ${isPaid ? '#48bb78' : '#e53e3e'}">
+                  ₹${splitItem.share.toFixed(2)}
+                </div>
+                <div style="font-size: 14px; color: ${isPaid ? '#48bb78' : '#e53e3e'}">
+                  ${isPaid ? '✓ Paid' : '✗ Unpaid'}
+                </div>
+                ${isOwner && isPaid && !isCurrentUser ? `
+                  <button class="btn btn-warning btn-small" style="margin-top: 5px;" 
+                          onclick="markAsUnpaid('${split._id}', '${splitItem.user._id}')">
+                    Mark Unpaid
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        });
+
+        // Progress bar
+        detailsHtml += `
+          </div>
+          <div style="margin: 20px 0;">
+            <h4 style="margin-bottom: 10px;">Progress</h4>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${split.stats.completionPercentage}%">
+                ₹${split.stats.amountPaid.toFixed(2)} / ₹${split.amount} (${split.stats.completionPercentage}%)
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Action buttons
+        if (isOwner && !split.isSettled) {
+          detailsHtml += `
+            <div style="margin: 20px 0; text-align: center;">
+              <button class="btn btn-warning" onclick="openReminderModal('${split._id}')">
+                Send Reminder to Unpaid (${split.stats.totalPending})
+              </button>
+              ${split.stats.totalPaid === 0 ? `
+                <button class="btn btn-danger" onclick="deleteSplit('${split._id}')">
+                  Delete Split
+                </button>
+              ` : ''}
+            </div>
+          `;
+        } else if (!isOwner && userSplit && !userSplit.paid) {
+          detailsHtml += `
+            <div style="margin: 20px 0; text-align: center;">
+              <button class="btn btn-success btn-large" onclick="paySplit('${split._id}')">
+                Pay Your Share (₹${userSplit.share.toFixed(2)})
+              </button>
+            </div>
+          `;
+        }
+
+        document.getElementById('splitDetailsContent').innerHTML = detailsHtml;
+        openModal('splitDetailsModal');
+        
+      } catch (error) {
+        showNotification('Failed to load split details', 'error');
+      }
+    }
+
+    // Pay split functionality
+    async function paySplit(splitId, paymentMethod = 'manual', transactionId = '') {
+      try {
+        const response = await apiCall(`/splits/${splitId}/pay`, {
+          method: 'PUT',
+          body: JSON.stringify({ paymentMethod, transactionId })
+        });
+        
+        showNotification(response.message, 'success');
+        
+        // Close details modal if open
+        closeModal('splitDetailsModal');
+        
+        // Refresh current view
+        if (document.getElementById('splits').classList.contains('active')) {
+          loadSplits();
+        } else if (document.getElementById('expenses').classList.contains('active')) {
+          loadExpenses();
+        }
+        
+        loadDashboard();
+        
+      } catch (error) {
+        showNotification('Failed to record payment: ' + error.message, 'error');
+      }
+    }
+
+    // Mark as unpaid (owner only)
+    async function markAsUnpaid(splitId, userId) {
+      if (!confirm('Mark this payment as unpaid? The user will need to pay again.')) return;
+      
+      try {
+        const response = await apiCall(`/splits/${splitId}/unpay/${userId}`, {
+          method: 'PUT'
+        });
+        
+        showNotification('Payment status updated', 'success');
+        viewSplitDetails(splitId); // Refresh details
+        loadSplits();
+        loadDashboard();
+        
+      } catch (error) {
+        showNotification('Failed to update payment status: ' + error.message, 'error');
+      }
+    }
+
+    // Delete split
+    async function deleteSplit(splitId) {
+      if (!confirm('Delete this split? This action cannot be undone.')) return;
+      
+      try {
+        await apiCall(`/splits/${splitId}`, {
+          method: 'DELETE'
+        });
+        
+        showNotification('Split deleted successfully', 'success');
+        closeModal('splitDetailsModal');
+        loadSplits();
+        loadDashboard();
+        
+      } catch (error) {
+        showNotification('Failed to delete split: ' + error.message, 'error');
+      }
+    }
+
+    // Open reminder modal
+    function openReminderModal(splitId) {
+      currentReminderSplitId = splitId;
+      document.getElementById('reminderMessage').value = '';
+      openModal('reminderModal');
+    }
+
+    // Send reminder
+    async function sendReminder(event) {
+      event.preventDefault();
+      
+      try {
+        const message = document.getElementById('reminderMessage').value;
+        
+        const response = await apiCall(`/splits/${currentReminderSplitId}/reminder`, {
+          method: 'POST',
+          body: JSON.stringify({ message })
+        });
+        
+        showNotification(response.message, 'success');
+        closeModal('reminderModal');
+        currentReminderSplitId = null;
+        
+      } catch (error) {
+        showNotification('Failed to send reminder: ' + error.message, 'error');
+      }
+    }
+
+    // Open settle all modal
+    function openSettleAllModal(userId, userName, amount) {
+      currentSettleUserId = userId;
+      
+      document.getElementById('settleAllDetails').innerHTML = `
+        <div class="balance-breakdown">
+          <h4>Settle all debts with ${userName}</h4>
+          <div class="balance-item">
+            <span>Total amount to settle:</span>
+            <span style="font-weight: bold; color: #e53e3e;">₹${amount.toFixed(2)}</span>
+          </div>
+          <p style="margin-top: 15px; color: #718096; font-size: 14px;">
+            This will mark all your unpaid splits with ${userName} as paid.
+          </p>
+        </div>
+      `;
+      
+      document.getElementById('settlePaymentMethod').value = 'manual';
+      document.getElementById('settleTransactionId').value = '';
+      
+      openModal('settleAllModal');
+    }
+
+    // Settle all debts
+    async function settleAllDebts(event) {
+      event.preventDefault();
+      
+      try {
+        const paymentMethod = document.getElementById('settlePaymentMethod').value;
+        const transactionId = document.getElementById('settleTransactionId').value;
+        
+        const response = await apiCall('/splits/settle-all', {
+          method: 'POST',
+          body: JSON.stringify({
+            withUserId: currentSettleUserId,
+            paymentMethod,
+            transactionId
+          })
+        });
+        
+        showNotification(response.message, 'success');
+        closeModal('settleAllModal');
+        currentSettleUserId = null;
+        
+        loadSplits();
+        loadDashboard();
+        
+      } catch (error) {
+        showNotification('Failed to settle debts: ' + error.message, 'error');
+      }
+    }
+
+    /* ---------- EXPENSE FUNCTIONALITY ---------- */
+
+    // Load expenses with filters
+    async function loadExpenses(updateUI = true) {
+      try {
+        const params = new URLSearchParams();
+        
+        const category = document.getElementById('expenseCategory')?.value;
+        if (category && category !== 'all') {
+          params.append('category', category);
+        }
+        
+        const search = document.getElementById('expenseSearch')?.value;
+        if (search && search.trim()) {
+          params.append('search', search.trim());
+        }
+        
+        const startDate = document.getElementById('expenseStartDate')?.value;
+        if (startDate) {
+          params.append('startDate', startDate);
+        }
+        
+        const endDate = document.getElementById('expenseEndDate')?.value;
+        if (endDate) {
+          params.append('endDate', endDate);
+        }
+
+        const queryString = params.toString();
+        const url = queryString ? `/expenses?${queryString}` : '/expenses';
+        
+        const res = await apiCall(url);
+        expensesCache = res.data;
+        if (!updateUI) return;
+        
+        const list = document.getElementById('expensesList');
+        if (expensesCache.length === 0) {
+          list.innerHTML = '<li class="item"><div class="item-info"><p>No expenses found matching your criteria.</p></div></li>';
+          return;
+        }
+        
+        list.innerHTML = expensesCache.map(exp => {
+          let displayAmount = exp.amount;
+          let statusText = '';
+          let actionButtons = '';
+          let itemClass = '';
+          
+          // Handle splits
+          if (exp.splits && exp.splits.length > 0) {
+            const userSplit = exp.splits.find(s => s.user._id === currentUser._id);
+            
+            if (userSplit) {
+              displayAmount = userSplit.share;
+              statusText = ` • Your share of ₹${exp.amount} split`;
+              itemClass = 'split-item';
+              
+              if (exp.owner._id === currentUser._id) {
+                const unpaidCount = exp.splits.filter(s => !s.paid && s.user._id !== currentUser._id).length;
+                const paidCount = exp.splits.filter(s => s.paid).length;
+                statusText += ` • ${paidCount}/${exp.splits.length} paid`;
+                if (unpaidCount > 0) {
+                  statusText += ` • ₹${exp.splits.filter(s => !s.paid).reduce((sum, s) => sum + s.share, 0).toFixed(2)} pending`;
+                }
+                
+                actionButtons = `
+                  <button class="btn btn-secondary btn-small" onclick="viewSplitDetails('${exp._id}')">Manage Split</button>
+                  ${unpaidCount > 0 ? `<button class="btn btn-warning btn-small" onclick="openReminderModal('${exp._id}')">Remind</button>` : ''}
+                  ${paidCount === 0 ? `<button class="btn btn-danger btn-small" onclick="deleteExpense('${exp._id}')">Delete</button>` : ''}
+                `;
+              } else {
+                statusText += ` • ${userSplit.paid ? 'Paid' : 'Unpaid'}`;
+                if (!userSplit.paid) {
+                  actionButtons = `
+                    <button class="btn btn-success btn-small" onclick="paySplit('${exp._id}')">Pay ₹${userSplit.share.toFixed(2)}</button>
+                    <button class="btn btn-secondary btn-small" onclick="viewSplitDetails('${exp._id}')">View Split</button>
+                  `;
+                } else {
+                  actionButtons = `<button class="btn btn-secondary btn-small" onclick="viewSplitDetails('${exp._id}')">View Split</button>`;
+                }
+              }
+            }
+          } else {
+            // Regular personal expense
+            itemClass = 'personal-item';
+            actionButtons = `
+              <button class="btn btn-secondary btn-small" onclick="openConvertToSplitModal('${exp._id}')">🔀 Split</button>
+              <button class="btn btn-secondary btn-small" onclick="editExpense('${exp._id}')">✏️ Edit</button>
+              <button class="btn btn-danger btn-small" onclick="deleteExpense('${exp._id}')">🗑️ Delete</button>
+            `;
+          }
+          
+          return `
+            <li class="item ${itemClass}">
+              <div class="item-info">
+                <h4>${exp.description}</h4>
+                <p>${exp.category} • ${new Date(exp.date).toLocaleDateString()}${statusText}</p>
+                ${exp.notes ? `<p style="font-size: 12px; color: #718096; margin-top: 5px;">${exp.notes}</p>` : ''}
+              </div>
+              <div>
+                <div style="font-weight:bold;color:#e53e3e;">-₹${displayAmount.toFixed(2)}</div>
+                <div class="item-actions">
+                  ${actionButtons}
+                </div>
+              </div>
+            </li>
+          `;
+        }).join('');
+        
+      } catch (err) {
+        showNotification('Failed to load expenses', 'error');
+      }
+    }
+
+    // Debounce search
+    function debounceSearchExpenses() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(loadExpenses, 500);
+    }
+
+    // Clear expense filters
+    function clearExpenseFilters() {
+      document.getElementById('expenseCategory').value = 'all';
+      document.getElementById('expenseSearch').value = '';
+      document.getElementById('expenseStartDate').value = '';
+      document.getElementById('expenseEndDate').value = '';
+      loadExpenses();
+    }
+
+    // Add/Edit expense
+    function openAddExpenseModal(expenseId = null) {
+      currentEditingExpenseId = expenseId;
+      
+      if (expenseId) {
+        // Edit mode
+        const expense = expensesCache.find(e => e._id === expenseId);
+        if (!expense) {
+          showNotification('Expense not found', 'error');
+          return;
+        }
+        
+        document.getElementById('addExpenseModalTitle').textContent = 'Edit Expense';
+        document.getElementById('saveExpenseBtn').textContent = '💰 Update Expense';
+        
+        document.getElementById('expenseAmountInput').value = expense.amount;
+        document.getElementById('expenseDescriptionInput').value = expense.description;
+        document.getElementById('expenseCategoryInput').value = expense.category;
+        document.getElementById('expenseDateInput').value = expense.date.split('T')[0];
+        document.getElementById('expenseNotesInput').value = expense.notes || '';
+      } else {
+        // Add mode
+        document.getElementById('addExpenseModalTitle').textContent = 'Add New Expense';
+        document.getElementById('saveExpenseBtn').textContent = '💰 Add Expense';
+        
+        document.getElementById('addExpenseModal').querySelector('form').reset();
+        document.getElementById('expenseDateInput').value = new Date().toISOString().split('T')[0];
+      }
+      
+      openModal('addExpenseModal');
+    }
+
+    function editExpense(expenseId) {
+      openAddExpenseModal(expenseId);
+    }
+
+    async function saveExpense(event) {
+      event.preventDefault();
+      
+      const saveBtn = document.getElementById('saveExpenseBtn');
+      const originalText = saveBtn.textContent;
+      saveBtn.disabled = true;
+      saveBtn.textContent = currentEditingExpenseId ? 'Updating...' : 'Adding...';
+      
+      try {
+        const payload = {
+          amount: parseFloat(document.getElementById('expenseAmountInput').value),
+          description: document.getElementById('expenseDescriptionInput').value,
+          category: document.getElementById('expenseCategoryInput').value,
+          date: document.getElementById('expenseDateInput').value,
+          notes: document.getElementById('expenseNotesInput').value
+        };
+
+        if (currentEditingExpenseId) {
+          // Update existing expense
+          await apiCall(`/expenses/${currentEditingExpenseId}`, {
+            method: 'PUT',
+            body: JSON.stringify(payload)
+          });
+          showNotification('Expense updated!', 'success');
+        } else {
+          // Create new expense
+          await apiCall('/expenses', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+          });
+          showNotification('Expense added!', 'success');
+        }
+        
+        closeModal('addExpenseModal');
+        currentEditingExpenseId = null;
+        
+        if (document.getElementById('expenses').classList.contains('active')) {
+          loadExpenses();
+        }
+        loadDashboard();
+        
+      } catch (err) {
+        showNotification(`Failed to ${currentEditingExpenseId ? 'update' : 'add'} expense: ${err.message}`, 'error');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = originalText;
+      }
+    }
+
+    async function deleteExpense(id) {
+      if (!confirm('Delete this expense? This action cannot be undone.')) return;
+      
+      try {
+        await apiCall(`/expenses/${id}`, { method: 'DELETE' });
+        showNotification('Expense deleted!', 'success');
+        loadExpenses();
+        loadDashboard();
+      } catch (err) {
+        showNotification('Failed to delete expense: ' + err.message, 'error');
+      }
+    }
+
+    // Export expenses
+    async function exportExpenses() {
+      try {
+        const startDate = document.getElementById('expenseStartDate')?.value;
+        const endDate = document.getElementById('expenseEndDate')?.value;
+        
+        let url = '/expenses/export?format=csv';
+        if (startDate) url += `&startDate=${startDate}`;
+        if (endDate) url += `&endDate=${endDate}`;
+        
+        // Create a temporary link to download the file
+        const response = await fetch(API_BASE + url, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (!response.ok) throw new Error('Export failed');
+        
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `finsplit-expenses-${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+        
+        showNotification('Expenses exported successfully!', 'success');
+        
+      } catch (error) {
+        showNotification('Failed to export expenses: ' + error.message, 'error');
+      }
+    }
+
+    /* ---------- DASHBOARD ---------- */
+    async function loadDashboard() {
+      try {
+        // Get personal expenses stats
+        const stats = await apiCall('/expenses/stats');
+        
+        // Get split balances with breakdown
+        const balances = await apiCall('/splits/balances');
+        
+        // Calculate total user spending (personal + user's share from splits)
+        const totalUserSpending = stats.data.totalExpenses;
+        
+        // Update dashboard cards
+        document.getElementById('totalBalance').textContent = `₹${totalUserSpending.toLocaleString()}`;
+        document.getElementById('monthlySpent').textContent = `₹${stats.data.monthlyExpenses.toLocaleString()}`;
+        document.getElementById('owedToYou').textContent = `₹${balances.data.owedToYou.toLocaleString()}`;
+        document.getElementById('youOwe').textContent = `₹${balances.data.youOwe.toLocaleString()}`;
+        
+        // Show balance breakdown if there are balances
+        const balanceBreakdownCard = document.getElementById('balanceBreakdownCard');
+        const balanceBreakdown = document.getElementById('balanceBreakdown');
+        
+        if (balances.data.owedToYou > 0 || balances.data.youOwe > 0) {
+          let breakdownHtml = '';
+          
+          if (balances.data.owedBreakdown && balances.data.owedBreakdown.length > 0) {
+            breakdownHtml += '<h5 style="color: #48bb78; margin-bottom: 10px;">💰 People who owe you:</h5>';
+            balances.data.owedBreakdown.forEach(item => {
+              breakdownHtml += `
+                <div class="balance-item positive">
+                  <span>${item.name}</span>
+                  <span>+₹${item.amount.toFixed(2)}</span>
+                </div>
+              `;
+            });
+          }
+          
+          if (balances.data.oweBreakdown && balances.data.oweBreakdown.length > 0) {
+            if (breakdownHtml) breakdownHtml += '<div style="margin: 20px 0;"></div>';
+            breakdownHtml += '<h5 style="color: #e53e3e; margin-bottom: 10px;">💸 You owe:</h5>';
+            balances.data.oweBreakdown.forEach(item => {
+              breakdownHtml += `
+                <div class="balance-item negative">
+                  <span>${item.name}</span>
+                  <span>-₹${item.amount.toFixed(2)}</span>
+                  <button class="btn btn-success btn-small" onclick="openSettleAllModal('${item.userId}', '${item.name}', ${item.amount})" style="margin-left: 10px;">
+                    Settle All
+                  </button>
+                </div>
+              `;
+            });
+          }
+          
+          if (balances.data.netBalance !== 0) {
+            breakdownHtml += `
+              <div class="balance-item" style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #667eea; font-weight: bold;">
+                <span>Net Balance:</span>
+                <span style="color: ${balances.data.netBalance >= 0 ? '#48bb78' : '#e53e3e'}">
+                  ${balances.data.netBalance >= 0 ? '+' : ''}₹${balances.data.netBalance.toFixed(2)}
+                </span>
+              </div>
+            `;
+          }
+          
+          balanceBreakdown.innerHTML = breakdownHtml;
+          balanceBreakdownCard.style.display = 'block';
+        } else {
+          balanceBreakdownCard.style.display = 'none';
+        }
+        
+        // Recent activity
+        await loadExpenses(false);
+        const recent = expensesCache.slice(0, 5);
+        document.getElementById('recentActivity').innerHTML = recent.map(e => {
+          let displayAmount = e.amount;
+          let displayText = 'Added';
+          let displayCategory = e.category;
+          
+          // If it's a split, show user's share
+          if (e.splits && e.splits.length > 0) {
+            const userSplit = e.splits.find(s => s.user._id === currentUser._id);
+            if (userSplit) {
+              displayAmount = userSplit.share;
+              if (e.owner._id === currentUser._id) {
+                displayText = 'Split created';
+                displayCategory = `Split with ${e.splits.length} people`;
+              } else {
+                displayText = 'Split joined';
+                displayCategory = `Split by ${e.owner.name}`;
+              }
+            }
+          }
+          
+          return `
+            <li class="item">
+              <div class="item-info">
+                <h4>${displayText}: ${e.description}</h4>
+                <p>${new Date(e.date).toLocaleDateString()} • ${displayCategory}</p>
+              </div>
+              <div style="font-weight:bold;color:#e53e3e;">-₹${displayAmount.toFixed(2)}</div>
+            </li>
+          `;
+        }).join('') || '<li class="item"><div class="item-info"><p>No recent activity</p></div></li>';
+        
+      } catch (err) {
+        showNotification('Failed to load dashboard', 'error');
+      }
+    }
+
+    /* ---------- GENERIC API WRAPPER ---------- */
+    async function apiCall(endpoint, options = {}) {
+      const token = localStorage.getItem('token');
+      const cfg = {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        },
+        ...options
+      };
+      try {
+        const res = await fetch(API_BASE + endpoint, cfg);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || 'API error');
+        return data;
+      } catch (err) {
+        console.error('API Error:', err);
+        if (err.message.includes('Token') || err.message.includes('denied') || err.message.includes('jwt')) {
+          localStorage.clear();
+          window.location.href = 'auth.html';
+        }
+        throw err;
+      }
+    }
+
+    /* ---------- AUTH CHECK ON LOAD ---------- */
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!localStorage.getItem('token')) {
+        window.location.href = 'auth.html';
+        return;
+      }
+      try {
+        const { data: { user } } = await apiCall('/auth/me');
+        currentUser = user;
+        document.getElementById('userName').textContent = user.name;
+        document.getElementById('userEmail').textContent = user.email;
+        document.getElementById('userAvatar').textContent =
+          user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        
+        // Set default date for expense form
+        document.getElementById('expenseDateInput').value = new Date().toISOString().split('T')[0];
+        
+        loadDashboard();
+        
+        // Add validation to the first email input
+        const firstEmailInput = document.querySelector('.split-email');
+        if (firstEmailInput) {
+          firstEmailInput.addEventListener('input', debounceValidateEmails);
+        }
+        
+        // Add event listeners for split amount and type
+        document.getElementById('splitAmount')?.addEventListener('input', updateSplitPreview);
+        
+      } catch (err) {
+        console.error('Auth check failed:', err);
+      }
+    });
+
+    /* ---------- NAVIGATION ---------- */
+    function showSection(id, ev) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      ev.target.classList.add('active');
+      loadSectionData(id);
+    }
+    
+    function loadSectionData(id) {
+      if (id === 'dashboard') loadDashboard();
+      if (id === 'expenses') loadExpenses();
+      if (id === 'splits') loadSplits();
+    }
+
+    /* ---------- MODAL HELPERS ---------- */
+    function openModal(id) {
+      document.getElementById(id).classList.add('show');
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+    
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('show');
+      document.body.style.overflow = 'auto'; // Restore scrolling
+    }
+    
+    // Close modal when clicking outside
+    document.querySelectorAll('.modal').forEach(m => {
+      m.addEventListener('click', e => {
+        if (e.target === m) {
+          m.classList.remove('show');
+          document.body.style.overflow = 'auto';
+        }
+      });
+    });
+
+    // Close modal on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal.show').forEach(modal => {
+          modal.classList.remove('show');
+          document.body.style.overflow = 'auto';
+        });
+      }
+    });
+
+    /* ---------- LOGOUT ---------- */
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        localStorage.clear();
+        window.location.href = 'auth.html';
+      }
+    }
+
+    /* ---------- NOTIFICATION SYSTEM ---------- */
+    function showNotification(msg, type = 'success') {
+      const n = document.getElementById('notification');
+      n.textContent = msg;
+      n.className = `notification ${type} show`;
+      setTimeout(() => n.classList.remove('show'), 4000);
+      
+      // Auto-hide longer messages faster
+      if (msg.length > 50) {
+        setTimeout(() => n.classList.remove('show'), 6000);
+      }
+    }
+
+    /* ---------- UTILITY FUNCTIONS ---------- */
+    
+    // Format currency
+    function formatCurrency(amount) {
+      return `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    // Format date
+    function formatDate(dateString) {
+      return new Date(dateString).toLocaleDateString('en-IN', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+
+    // Validate email
+    function isValidEmail(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
+
+    // Debounce function
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    /* ---------- KEYBOARD SHORTCUTS ---------- */
+    document.addEventListener('keydown', (e) => {
+      // Ctrl/Cmd + N = New expense
+      if ((e.ctrlKey || e.metaKey) && e.key === 'n' && !e.target.matches('input, textarea')) {
+        e.preventDefault();
+        openModal('addExpenseModal');
+      }
+      
+      // Ctrl/Cmd + S = New split
+      if ((e.ctrlKey || e.metaKey) && e.key === 's' && !e.target.matches('input, textarea')) {
+        e.preventDefault();
+        openModal('createSplitModal');
+      }
+      
+      // Ctrl/Cmd + E = Export
+      if ((e.ctrlKey || e.metaKey) && e.key === 'e' && !e.target.matches('input, textarea')) {
+        e.preventDefault();
+        exportExpenses();
+      }
+    });
+
+    /* ---------- PROGRESSIVE WEB APP (PWA) ---------- */
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(registration => console.log('SW registered:', registration))
+        .catch(error => console.log('SW registration failed:', error));
+    }
+
+    // Install PWA prompt
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      
+      // Show install button (you can add this to your UI)
+      const installBtn = document.createElement('button');
+      installBtn.textContent = '📱 Install App';
+      installBtn.className = 'btn btn-secondary btn-small';
+      installBtn.style.position = 'fixed';
+      installBtn.style.bottom = '20px';
+      installBtn.style.right = '20px';
+      installBtn.style.zIndex = '1000';
+      
+      installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const result = await deferredPrompt.userChoice;
+          if (result.outcome === 'accepted') {
+            showNotification('App installed successfully!', 'success');
+          }
+          deferredPrompt = null;
+          installBtn.remove();
+        }
+      });
+      
+      document.body.appendChild(installBtn);
+      
+      // Auto-hide after 10 seconds
+      setTimeout(() => {
+        if (installBtn && installBtn.parentNode) {
+          installBtn.remove();
+        }
+      }, 10000);
+    });
+
+    /* ---------- PERFORMANCE OPTIMIZATION ---------- */
+    
+    // Lazy loading for images (if you add them later)
+    const imageObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src;
+          img.classList.remove('lazy');
+          imageObserver.unobserve(img);
+        }
+      });
+    });
+
+    // Cache management
+    function clearOldCaches() {
+      const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+      const lastClear = localStorage.getItem('lastCacheClear');
+      
+      if (!lastClear || Date.now() - parseInt(lastClear) > maxAge) {
+        // Clear old cached data
+        ['expensesCache', 'splitsCache', 'statsCache'].forEach(key => {
+          localStorage.removeItem(key);
+        });
+        localStorage.setItem('lastCacheClear', Date.now().toString());
+      }
+    }
+
+    // Call on app start
+    clearOldCaches();
+
+    /* ---------- ANALYTICS & TRACKING (Optional) ---------- */
+    
+    // Track user actions for app improvement
+    function trackEvent(action, category = 'user', label = '') {
+      // You can integrate with Google Analytics, Mixpanel, etc.
+      console.log('Event tracked:', { action, category, label, timestamp: new Date() });
+      
+      // Example: Track to localStorage for debugging
+      const events = JSON.parse(localStorage.getItem('appEvents') || '[]');
+      events.push({ action, category, label, timestamp: new Date().toISOString() });
+      
+      // Keep only last 100 events
+      if (events.length > 100) {
+        events.splice(0, events.length - 100);
+      }
+      
+      localStorage.setItem('appEvents', JSON.stringify(events));
+    }
+
+    // Track important user actions
+    const originalOpenModal = openModal;
+    window.openModal = function(id) {
+      trackEvent('modal_open', 'ui', id);
+      return originalOpenModal(id);
+    };
+
+    /* ---------- ERROR BOUNDARY ---------- */
+    window.addEventListener('error', (e) => {
+      console.error('Global error:', e.error);
+      showNotification('An unexpected error occurred. Please refresh the page.', 'error');
+      
+      // Track error
+      trackEvent('error', 'system', e.error?.message || 'Unknown error');
+    });
+
+    window.addEventListener('unhandledrejection', (e) => {
+      console.error('Unhandled promise rejection:', e.reason);
+      showNotification('A network error occurred. Please check your connection.', 'error');
+      
+      // Track error
+      trackEvent('promise_rejection', 'system', e.reason?.message || 'Unknown rejection');
+    });
+
+    console.log('🚀 FinSplit App Loaded Successfully!');
+    console.log('📋 Keyboard Shortcuts:');
+    console.log('  Ctrl/Cmd + N: New Expense');
+    console.log('  Ctrl/Cmd + S: New Split');
+    console.log('  Ctrl/Cmd + E: Export Data');
+    console.log('  Escape: Close Modals');
+    
+  </script>
+</body>
+</html>
+

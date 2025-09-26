@@ -1,0 +1,11 @@
+for server:
+cd server
+npm run dev
+
+for client:
+# Simple HTTP server for the client
+cd client
+python -m http.server 3000
+# OR use VS Code Live Server extension
+
+http://localhost:3000

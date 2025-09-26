@@ -10,4 +10,13 @@ python -m http.server 3000
 
 http://localhost:3000
 
-trying the git commands
+For making git
+git remote add origin [url]
+git push -u origin main
+git clone https://github.com/abhyuditagrawal/Finsplit.git
+
+Git commands
+git pull
+git add . 
+git commit -m "Description"
+git push -u origin main

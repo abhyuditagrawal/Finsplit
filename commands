@@ -12,6 +12,7 @@ http://localhost:3000
 
 For making git
 git init
+git add .
 git commit -m "Description"
 git remote add origin [url]
 git branch -M main

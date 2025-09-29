@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>FinSplit - Dashboard</title>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <!-- =====================  CSS  ===================== -->
   <style>
     /* RESET */
@@ -495,7 +497,246 @@
       .filters{flex-direction:column;align-items:stretch}
       .modal-content{padding:1rem;margin:1rem}
     }
-  </style>
+
+    /* BUDGET SPECIFIC STYLES */
+.budget-progress {
+  background: #f1f5f9;
+  border-radius: 10px;
+  height: 24px;
+  overflow: hidden;
+  margin: 10px 0;
+  position: relative;
+}
+
+.budget-progress-fill {
+  height: 100%;
+  transition: width 0.5s ease, background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  position: relative;
+}
+
+.budget-progress-fill.on-track {
+  background: linear-gradient(90deg, #48bb78, #38a169);
+}
+
+.budget-progress-fill.near-limit {
+  background: linear-gradient(90deg, #ed8936, #dd6b20);
+}
+
+.budget-progress-fill.exceeded {
+  background: linear-gradient(90deg, #e53e3e, #c53030);
+}
+
+.budget-alert {
+  background: #fed7d7;
+  border: 1px solid #feb2b2;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 10px 0;
+  color: #9b2c2c;
+}
+
+.budget-alert.warning {
+  background: #feebc8;
+  border-color: #f6ad55;
+  color: #975a16;
+}
+
+.budget-alert.success {
+  background: #c6f6d5;
+  border-color: #9ae6b4;
+  color: #22543d;
+}
+
+.budget-card {
+  background: #f8f9ff;
+  border-left: 4px solid #667eea;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 15px 0;
+}
+
+.budget-card.exceeded {
+  background: #fef5f5;
+  border-left-color: #e53e3e;
+}
+
+.budget-card.near-limit {
+  background: #fffaf0;
+  border-left-color: #ed8936;
+}
+
+.category-chart {
+  display: grid;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.category-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border-left: 4px solid #667eea;
+}
+
+.category-item.exceeded {
+  border-left-color: #e53e3e;
+  background: #fef5f5;
+}
+
+.category-item.near-limit {
+  border-left-color: #ed8936;
+  background: #fffaf0;
+}
+
+.budget-timeline {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 15px 0;
+}
+
+.timeline-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.timeline-item:last-child {
+  border-bottom: none;
+}
+
+.days-remaining {
+  font-size: 12px;
+  color: #718096;
+  background: #edf2f7;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.days-remaining.urgent {
+  background: #fed7d7;
+  color: #9b2c2c;
+}
+
+/* PROFILE MODAL STYLES */
+.profile-tab {
+  display: none;
+}
+
+.profile-tab.active {
+  display: block;
+}
+
+.profile-section {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 15px 0;
+}
+
+.danger-zone {
+  background: #fef5f5;
+  border: 1px solid #feb2b2;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 15px 0;
+}
+
+.danger-zone h4 {
+  color: #e53e3e;
+  margin-bottom: 10px;
+}
+
+.danger-zone ul {
+  color: #9b2c2c;
+  margin: 10px 0;
+}
+
+.danger-zone ul li {
+  margin: 5px 0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.stat-card {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 24px;
+  font-weight: bold;
+  color: #667eea;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #718096;
+  margin-top: 5px;
+}
+
+/* CHARTS SECTION */
+.charts-section {
+  margin: 2rem 0;
+  padding: 0 2rem;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.chart-container {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.chart-container h3 {
+  margin: 0 0 1rem 0;
+  color: #2d3748;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.chart-container canvas {
+  max-height: 300px !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .charts-section {
+    padding: 0 1rem;
+  }
+}
+
+</style>
 </head>
 
 <body>
@@ -503,13 +744,15 @@
   <div class="header">
     <div class="logo">💰 FinSplit</div>
     <div class="user-info">
-      <div class="avatar" id="userAvatar">JD</div>
-      <div>
-        <div id="userName">John Doe</div>
-        <div id="userEmail" style="font-size:12px;opacity:.8;">john@example.com</div>
-      </div>
-      <button class="logout-btn" onclick="logout()">🚪 Logout</button>
-    </div>
+  <div class="avatar" id="userAvatar">JD</div>
+  <div onclick="openProfileModal()" style="cursor: pointer;">
+    <div id="userName">John Doe</div>
+    <div id="userEmail" style="font-size:12px;opacity:.8">john@example.com</div>
+    <div style="font-size:10px;opacity:.6">👤 View Profile</div>
+  </div>
+  <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
   </div>
 
   <!-- =====================  NAVIGATION  ===================== -->
@@ -558,6 +801,20 @@
           <button class="btn btn-secondary" onclick="exportExpenses()">📊 Export Data</button>
         </div>
       </div>
+
+      <div class="charts-section">
+  <div class="charts-grid">
+    <div class="chart-container">
+      <h3>📊 Spending by Category</h3>
+      <canvas id="categoryChart" width="400" height="300"></canvas>
+    </div>
+    
+    <div class="chart-container">
+      <h3>📈 Monthly Spending Trend</h3>
+      <canvas id="trendChart" width="400" height="300"></canvas>
+    </div>
+  </div>
+</div>
 
       <!-- Balance Breakdown -->
       <div class="card" id="balanceBreakdownCard" style="display:none;">
@@ -618,10 +875,11 @@
 
         <!-- Split Tabs -->
         <div class="tabs">
-          <div class="tab active" onclick="switchSplitTab('all', event)">All Splits</div>
-          <div class="tab" onclick="switchSplitTab('pending', event)">Pending</div>
-          <div class="tab" onclick="switchSplitTab('settled', event)">Settled</div>
-        </div>
+  <div class="tab active" onclick="switchSplitTab('all', event)">All Splits</div>
+  <div class="tab" onclick="switchSplitTab('pending', event)">Pending</div>
+  <div class="tab" onclick="switchSplitTab('settled', event)">Settled</div>
+</div>
+
         
         <!-- Split Filters -->
         <div class="filters">
@@ -646,33 +904,266 @@
       </div>
     </div>
 
-    <!-- ===== GROUPS PLACEHOLDER ===== -->
-    <div id="groups" class="section">
-      <div class="card">
-        <div class="card-title">
-          Your Groups
-          <button class="btn btn-primary btn-small" style="float:right"
-                  onclick="openModal('createGroupModal')">👥 New Group</button>
-        </div>
-        <p style="padding:20px 0;text-align:center;color:#718096;">
-          Groups feature coming soon! This will allow you to organize splits by groups like "Roommates", "Office Team", etc.
-        </p>
+    <!-- ===== GROUPS ===== -->
+<div id="groups" class="section">
+  <div class="card">
+    <div class="card-title">
+      Your Groups
+      <button class="btn btn-primary btn-small" style="float:right"
+              onclick="openCreateGroupModal()">👥 New Group</button>
+    </div>
+
+    <!-- Group Stats -->
+    <div class="stats-grid" id="groupStats" style="display:none;">
+      <div class="stat-card">
+        <div class="stat-number" id="totalGroups">0</div>
+        <div class="stat-label">Total Groups</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="totalMembers">0</div>
+        <div class="stat-label">Total Members</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="groupExpenses">0</div>
+        <div class="stat-label">Group Expenses</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="groupSplits">0</div>
+        <div class="stat-label">Group Splits</div>
       </div>
     </div>
 
-    <!-- ===== BUDGET PLACEHOLDER ===== -->
-    <div id="budget" class="section">
-      <div class="card">
-        <div class="card-title">Monthly Budget Overview</div>
-        <p style="padding:20px 0;text-align:center;color:#718096;">
-          Budget tracking and goals feature coming soon! Set spending limits and track your progress.
-        </p>
+    <!-- Groups List -->
+    <div id="groupsContainer">
+      <ul class="item-list" id="groupsList"></ul>
+    </div>
+  </div>
+</div>
+
+
+    <!-- ===== BUDGET ===== -->
+<div id="budget" class="section">
+  <!-- Budget Overview -->
+  <div class="card">
+    <div class="card-title">
+      Budget Overview
+      <button class="btn btn-primary btn-small" style="float:right"
+              onclick="openCreateBudgetModal()">📊 New Budget</button>
+    </div>
+
+    <!-- Budget Summary Stats -->
+    <div class="stats-grid" id="budgetSummaryStats" style="display:none;">
+      <div class="stat-card" id="totalBudgetedCard">
+        <div class="stat-number" id="totalBudgeted">₹0</div>
+        <div class="stat-label">Total Budgeted</div>
+      </div>
+      <div class="stat-card" id="totalSpentCard">
+        <div class="stat-number" id="totalSpent">₹0</div>
+        <div class="stat-label">Total Spent</div>
+      </div>
+      <div class="stat-card" id="budgetRemainingCard">
+        <div class="stat-number" id="budgetRemaining">₹0</div>
+        <div class="stat-label">Remaining</div>
+      </div>
+      <div class="stat-card" id="overallProgressCard">
+        <div class="stat-number" id="overallProgress">0%</div>
+        <div class="stat-label">Overall Progress</div>
       </div>
     </div>
+
+    <!-- Budget Status Overview -->
+    <div id="budgetStatusOverview" style="display:none; margin: 20px 0;">
+      <div class="tabs">
+        <div class="tab active" onclick="switchBudgetTab('all', event)">All Budgets</div>
+        <div class="tab" onclick="switchBudgetTab('on-track', event)">On Track</div>
+        <div class="tab" onclick="switchBudgetTab('near-limit', event)">Near Limit</div>
+        <div class="tab" onclick="switchBudgetTab('exceeded', event)">Exceeded</div>
+      </div>
+    </div>
+
+    <!-- Budgets List -->
+    <div id="budgetsContainer">
+      <ul class="item-list" id="budgetsList"></ul>
+    </div>
+  </div>
+
+  <!-- Budget Analytics -->
+  <div class="card" id="budgetAnalytics" style="display:none;">
+    <div class="card-title">Budget Analytics</div>
+    <div id="categoryBreakdown"></div>
+  </div>
+</div>
+
 
   </div> <!-- /container -->
 
   <!-- =====================  MODALS  ===================== -->
+   <!-- MODALS -->
+
+<!-- PROFILE MODAL -->
+<div id="profileModal" class="modal">
+  <div class="modal-content large">
+    <div class="modal-header">
+      <h3>👤 Profile Settings</h3>
+      <button class="close-modal" onclick="closeModal('profileModal')">&times;</button>
+    </div>
+    
+    <!-- Profile Tabs -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchProfileTab('info', event)">Profile Info</div>
+      <div class="tab" onclick="switchProfileTab('security', event)">Security</div>
+      <div class="tab" onclick="switchProfileTab('stats', event)">Statistics</div>
+      <div class="tab" onclick="switchProfileTab('danger', event)">Danger Zone</div>
+    </div>
+
+    <!-- Profile Info Tab -->
+    <div id="profileInfoTab" class="profile-tab active">
+      <form onsubmit="updateProfile(event)">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="profileName" required />
+        </div>
+        
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="profileEmail" required />
+        </div>
+        
+        <div class="form-group">
+          <label>UPI ID</label>
+          <input type="text" id="profileUpi" required />
+        </div>
+        
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="profilePhone" />
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Update Profile</button>
+      </form>
+    </div>
+
+    <!-- Security Tab -->
+    <div id="profileSecurityTab" class="profile-tab" style="display:none;">
+      <form onsubmit="changePassword(event)">
+        <div class="form-group">
+          <label>Current Password</label>
+          <input type="password" id="currentPassword" required />
+        </div>
+        
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" id="newPassword" required minlength="6" />
+        </div>
+        
+        <div class="form-group">
+          <label>Confirm New Password</label>
+          <input type="password" id="confirmPassword" required minlength="6" />
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Change Password</button>
+      </form>
+      
+      <div class="profile-section">
+        <h4>Account Security</h4>
+        <p>Last Login: <span id="lastLoginDate">Loading...</span></p>
+        <p>Member Since: <span id="memberSinceDate">Loading...</span></p>
+      </div>
+    </div>
+
+    <!-- Statistics Tab -->
+    <div id="profileStatsTab" class="profile-tab" style="display:none;">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="totalExpensesStat">0</div>
+          <div class="stat-label">Total Expenses</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="totalSplitsStat">0</div>
+          <div class="stat-label">Total Splits</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="totalSpentStat">₹0</div>
+          <div class="stat-label">Total Spent</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="activeDaysStat">0</div>
+          <div class="stat-label">Days Active</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danger Zone Tab -->
+    <div id="profileDangerTab" class="profile-tab" style="display:none;">
+      <div class="danger-zone">
+        <h4>🚨 Danger Zone</h4>
+        <p><strong>Warning:</strong> These actions cannot be undone.</p>
+        
+        <div class="form-group">
+          <button class="btn btn-danger" onclick="openDeleteAccountModal()">
+            🗑️ Delete My Account
+          </button>
+          <p style="font-size: 12px; color: #718096;">
+            This will permanently delete your account and all associated data.
+          </p>
+        </div>
+        
+        <div class="form-group">
+          <button class="btn btn-warning" onclick="exportUserData()">
+            📥 Export My Data
+          </button>
+          <p style="font-size: 12px; color: #718096;">
+            Download all your expenses and splits data.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-message" id="profileError"></div>
+    <div class="success-message" id="profileSuccess"></div>
+  </div>
+</div>
+
+<!-- DELETE ACCOUNT CONFIRMATION MODAL -->
+<div id="deleteAccountModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>⚠️ Delete Account</h3>
+      <button class="close-modal" onclick="closeModal('deleteAccountModal')">&times;</button>
+    </div>
+    
+    <div class="danger-zone">
+      <p><strong>This action cannot be undone.</strong></p>
+      <p>This will permanently delete:</p>
+      <ul>
+        <li>Your account and profile</li>
+        <li>All your personal expenses</li>
+        <li>All splits you created</li>
+        <li>Your participation in other splits</li>
+      </ul>
+      
+      <form onsubmit="deleteAccount(event)">
+        <div class="form-group">
+          <label>Enter your password to confirm:</label>
+          <input type="password" id="deleteAccountPassword" required />
+        </div>
+        
+        <div class="form-group">
+          <label>Type "DELETE" to confirm:</label>
+          <input type="text" id="deleteConfirmText" required placeholder="DELETE" />
+        </div>
+        
+        <div style="display:flex;gap:10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('deleteAccountModal')">Cancel</button>
+          <button type="submit" class="btn btn-danger">Delete My Account</button>
+        </div>
+      </form>
+    </div>
+    
+    <div class="error-message" id="deleteAccountError"></div>
+  </div>
+</div>
+
 
   <!-- ADD EXPENSE -->
   <div id="addExpenseModal" class="modal">
@@ -927,20 +1418,129 @@
     </div>
   </div>
 
-  <!-- GROUP PLACEHOLDER -->
-  <div id="createGroupModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>Create Group (Coming Soon)</h3>
-        <button class="close-modal" onclick="closeModal('createGroupModal')">&times;</button>
+<!-- CREATE GROUP MODAL -->
+<div id="createGroupModal" class="modal">
+  <div class="modal-content large">
+    <div class="modal-header">
+      <h3 id="createGroupModalTitle">Create New Group</h3>
+      <button class="close-modal" onclick="closeModal('createGroupModal')">&times;</button>
+    </div>
+    <form onsubmit="saveGroup(event)">
+      <div class="form-group">
+        <label>Group Name</label>
+        <input type="text" id="groupName" required maxlength="50" placeholder="e.g., Roommates, Office Team, Trip Buddies" />
       </div>
-      <p style="padding:20px 0;text-align:center;color:#718096;">
-        Group functionality will be available in the next update!<br><br>
-        You'll be able to create groups like "Roommates", "Office Team", "Trip Buddies" 
-        and manage all splits within those groups easily.
-      </p>
+      
+      <div class="form-group">
+        <label>Description (Optional)</label>
+        <textarea id="groupDescription" placeholder="What's this group for?" maxlength="200"></textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div class="form-group">
+          <label>Group Color</label>
+          <select id="groupColor">
+            <option value="#667eea">💜 Purple (Default)</option>
+            <option value="#48bb78">💚 Green</option>
+            <option value="#ed8936">🧡 Orange</option>
+            <option value="#4299e1">💙 Blue</option>
+            <option value="#e53e3e">❤️ Red</option>
+            <option value="#805ad5">🔮 Violet</option>
+            <option value="#38b2ac">💎 Teal</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Group Icon</label>
+          <select id="groupIcon">
+            <option value="👥">👥 People</option>
+            <option value="🏠">🏠 Home</option>
+            <option value="🏢">🏢 Office</option>
+            <option value="✈️">✈️ Travel</option>
+            <option value="🎉">🎉 Party</option>
+            <option value="🍕">🍕 Food</option>
+            <option value="💼">💼 Business</option>
+            <option value="🎓">🎓 School</option>
+            <option value="🏖️">🏖️ Vacation</option>
+            <option value="🚗">🚗 Transport</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Add Members (Email Addresses)</label>
+        <div id="groupEmailInputContainer">
+          <div class="email-input-row">
+            <input type="email" class="group-email" placeholder="friend@example.com" />
+            <button type="button" class="btn btn-secondary btn-small" onclick="addGroupEmailInput()">+</button>
+          </div>
+        </div>
+        <div id="groupEmailValidation" class="validation-message"></div>
+        <p style="font-size: 12px; color: #718096; margin-top: 5px;">
+          Only registered users can be added to groups. You'll be the group admin.
+        </p>
+      </div>
+
+      <div id="groupPreview" class="split-preview" style="display: none;">
+        <h4>Group Preview:</h4>
+        <div id="groupPreviewContent"></div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button type="submit" class="btn btn-primary" id="saveGroupBtn" style="flex:1">Create Group</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('createGroupModal')">Cancel</button>
+      </div>
+      
+      <div id="groupError" class="error-message"></div>
+      <div id="groupSuccess" class="success-message"></div>
+    </form>
+  </div>
+</div>
+
+<!-- GROUP DETAILS MODAL -->
+<div id="groupDetailsModal" class="modal">
+  <div class="modal-content large">
+    <div class="modal-header">
+      <h3 id="groupDetailsTitle">Group Details</h3>
+      <button class="close-modal" onclick="closeModal('groupDetailsModal')">&times;</button>
+    </div>
+    <div id="groupDetailsContent">
+      <!-- Content will be loaded dynamically -->
     </div>
   </div>
+</div>
+
+<!-- ADD MEMBER MODAL -->
+<div id="addMemberModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Add Member to Group</h3>
+      <button class="close-modal" onclick="closeModal('addMemberModal')">&times;</button>
+    </div>
+    <form onsubmit="addGroupMember(event)">
+      <div class="form-group">
+        <label>Member Email</label>
+        <input type="email" id="memberEmail" required placeholder="friend@example.com" />
+      </div>
+      
+      <div class="form-group">
+        <label>Role</label>
+        <select id="memberRole">
+          <option value="member">Member</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button type="submit" class="btn btn-primary" style="flex:1">Add Member</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('addMemberModal')">Cancel</button>
+      </div>
+      
+      <div id="addMemberError" class="error-message"></div>
+    </form>
+  </div>
+</div>
+
 
   <!-- =====================  NOTIFICATION  ===================== -->
   <div id="notification" class="notification"></div>
@@ -952,11 +1552,415 @@
     let currentUser = null;
     let expensesCache = [];
     let splitsCache = [];
-    let currentSplitStatus = 'all';
+    let currentSplitTab = 'all';         // CHANGED: Status → Tab
+    let currentTab = 'all';              // ADDED: This line
     let currentEditingExpenseId = null;
     let currentConvertingExpenseId = null;
     let currentReminderSplitId = null;
     let currentSettleUserId = null;
+    let categoryChart = null;
+    let trendChart = null;
+    
+/* ---------- CHARTS FUNCTIONALITY ---------- */
+async function loadCharts() {
+  try {
+    await loadCategoryChart();
+    await loadTrendChart();
+  } catch (error) {
+    console.error('Error loading charts:', error);
+  }
+}
+
+// 1. Categories Pie Chart
+async function loadCategoryChart() {
+  try {
+    const response = await apiCall('/expenses');
+    const expenses = response.data;
+    
+    // Group expenses by category
+    const categoryData = {};
+    expenses.forEach(expense => {
+      const category = expense.category || 'Other';
+      
+      // Calculate user's actual spending (personal or split share)
+      let amount = 0;
+      if (expense.splits && expense.splits.length > 0) {
+        // Split expense - only count user's share
+        const userSplit = expense.splits.find(s => s.user._id === currentUser._id);
+        amount = userSplit ? userSplit.share : 0;
+      } else {
+        // Personal expense - count full amount
+        amount = expense.amount;
+      }
+      
+      categoryData[category] = (categoryData[category] || 0) + amount;
+    });
+    
+    // Convert to chart data
+    const labels = Object.keys(categoryData);
+    const data = Object.values(categoryData);
+    const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe', '#43e97b', '#38f9d7'];
+    
+    // Destroy existing chart if it exists
+    if (categoryChart) {
+      categoryChart.destroy();
+    }
+    
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+    categoryChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: colors.slice(0, labels.length),
+          borderWidth: 2,
+          borderColor: '#ffffff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 15,
+              usePointStyle: true,
+              font: {
+                size: 12
+              }
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                return `${context.label}: ₹${context.parsed.toLocaleString()} (${percentage}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error loading category chart:', error);
+  }
+}
+
+// 2. Monthly Trend Line Chart - SIMPLE VERSION
+async function loadTrendChart() {
+  try {
+    const response = await apiCall('/expenses');
+    const expenses = response.data;
+    
+    // Simple approach - group by month
+    const monthlyTotals = {};
+    
+    expenses.forEach(expense => {
+      // Use expense date or created date
+      const expenseDate = new Date(expense.date || expense.createdAt || expense.updatedAt);
+      const monthYear = expenseDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      
+      // Calculate amount (personal or user's split share)
+      let amount = 0;
+      if (expense.splits && expense.splits.length > 0) {
+        const userSplit = expense.splits.find(s => s.user._id === currentUser._id);
+        amount = userSplit ? userSplit.share : 0;
+      } else {
+        amount = expense.amount || 0;
+      }
+      
+      monthlyTotals[monthYear] = (monthlyTotals[monthYear] || 0) + amount;
+    });
+    
+    // Get last 6 months in order
+    const labels = [];
+    const data = [];
+    
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date();
+      date.setMonth(date.getMonth() - i);
+      const monthLabel = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      labels.push(monthLabel);
+      data.push(monthlyTotals[monthLabel] || 0);
+    }
+    
+    console.log('Trend chart data:', { labels, data });
+    
+    // Destroy existing chart if it exists
+    if (trendChart) {
+      trendChart.destroy();
+    }
+    
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    trendChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Monthly Spending',
+          data: data,
+          borderColor: '#667eea',
+          backgroundColor: 'rgba(102, 126, 234, 0.1)',
+          borderWidth: 3,
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#667eea',
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2,
+          pointRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return `Spending: ₹${context.parsed.y.toLocaleString()}`;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return '₹' + value.toLocaleString();
+              }
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            }
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error loading trend chart:', error);
+  }
+}
+
+/* ---------- PROFILE FUNCTIONALITY ---------- */
+let currentProfileTab = 'info';
+
+// Open profile modal
+async function openProfileModal() {
+  try {
+    const response = await apiCall('/profile');
+    const profile = response.data;
+    
+    // Fill profile form
+    document.getElementById('profileName').value = profile.user.name;
+    document.getElementById('profileEmail').value = profile.user.email;
+    document.getElementById('profileUpi').value = profile.user.upiId;
+    document.getElementById('profilePhone').value = profile.user.phone || '';
+    
+    // Fill security info
+    document.getElementById('lastLoginDate').textContent = new Date(profile.user.lastLogin).toLocaleDateString();
+    document.getElementById('memberSinceDate').textContent = new Date(profile.user.createdAt).toLocaleDateString();
+    
+    // Fill stats
+    document.getElementById('totalExpensesStat').textContent = profile.stats.totalExpenses;
+    document.getElementById('totalSplitsStat').textContent = profile.stats.totalSplits;
+    document.getElementById('totalSpentStat').textContent = `₹${profile.stats.totalSpent.toLocaleString()}`;
+    
+    const daysSince = Math.floor((new Date() - new Date(profile.user.createdAt)) / (1000 * 60 * 60 * 24));
+    document.getElementById('activeDaysStat').textContent = daysSince;
+    
+    // Set default tab - Profile Info
+    currentProfileTab = 'info';
+    
+    // Hide all tabs first
+    document.querySelectorAll('.profile-tab').forEach(t => {
+      t.style.display = 'none';
+      t.classList.remove('active');
+    });
+    
+    // Set first tab as active
+    document.querySelectorAll('#profileModal .tabs .tab').forEach(t => t.classList.remove('active'));
+    document.querySelector('#profileModal .tabs .tab:first-child').classList.add('active');
+    
+    // Show Profile Info tab
+    document.getElementById('profileInfoTab').style.display = 'block';
+    document.getElementById('profileInfoTab').classList.add('active');
+    
+    openModal('profileModal');
+  } catch (error) {
+    showNotification('Failed to load profile', 'error');
+  }
+}
+
+
+// Switch profile tabs
+function switchProfileTab(tab, event) {
+  currentProfileTab = tab;
+  
+  // Update tab styling
+  document.querySelectorAll('#profileModal .tabs .tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  // Show/hide tab content
+  document.querySelectorAll('.profile-tab').forEach(t => t.style.display = 'none');
+  document.getElementById(`profile${tab.charAt(0).toUpperCase() + tab.slice(1)}Tab`).style.display = 'block';
+}
+
+// Update profile
+async function updateProfile(event) {
+  event.preventDefault();
+  
+  const profileError = document.getElementById('profileError');
+  const profileSuccess = document.getElementById('profileSuccess');
+  
+  profileError.style.display = 'none';
+  profileSuccess.style.display = 'none';
+  
+  try {
+    const payload = {
+      name: document.getElementById('profileName').value,
+      email: document.getElementById('profileEmail').value,
+      upiId: document.getElementById('profileUpi').value,
+      phone: document.getElementById('profilePhone').value
+    };
+    
+    const response = await apiCall('/profile', {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    });
+    
+    // Update current user data
+    currentUser = response.data;
+    document.getElementById('userName').textContent = currentUser.name;
+    document.getElementById('userEmail').textContent = currentUser.email;
+    document.getElementById('userAvatar').textContent = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+    
+    profileSuccess.textContent = 'Profile updated successfully!';
+    profileSuccess.style.display = 'block';
+    
+  } catch (error) {
+    profileError.textContent = error.message;
+    profileError.style.display = 'block';
+  }
+}
+
+// Change password
+async function changePassword(event) {
+  event.preventDefault();
+  
+  const currentPassword = document.getElementById('currentPassword').value;
+  const newPassword = document.getElementById('newPassword').value;
+  const confirmPassword = document.getElementById('confirmPassword').value;
+  
+  const profileError = document.getElementById('profileError');
+  const profileSuccess = document.getElementById('profileSuccess');
+  
+  profileError.style.display = 'none';
+  profileSuccess.style.display = 'none';
+  
+  if (newPassword !== confirmPassword) {
+    profileError.textContent = 'New passwords do not match';
+    profileError.style.display = 'block';
+    return;
+  }
+  
+  try {
+    await apiCall('/profile/password', {
+      method: 'PUT',
+      body: JSON.stringify({
+        currentPassword,
+        newPassword
+      })
+    });
+    
+    profileSuccess.textContent = 'Password changed successfully!';
+    profileSuccess.style.display = 'block';
+    
+    // Clear form
+    document.getElementById('currentPassword').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmPassword').value = '';
+    
+  } catch (error) {
+    profileError.textContent = error.message;
+    profileError.style.display = 'block';
+  }
+}
+
+// Open delete account modal
+function openDeleteAccountModal() {
+  document.getElementById('deleteAccountPassword').value = '';
+  document.getElementById('deleteConfirmText').value = '';
+  document.getElementById('deleteAccountError').style.display = 'none';
+  closeModal('profileModal');
+  openModal('deleteAccountModal');
+}
+
+// Delete account
+async function deleteAccount(event) {
+  event.preventDefault();
+  
+  const password = document.getElementById('deleteAccountPassword').value;
+  const confirmText = document.getElementById('deleteConfirmText').value;
+  
+  const deleteError = document.getElementById('deleteAccountError');
+  deleteError.style.display = 'none';
+  
+  if (confirmText !== 'DELETE') {
+    deleteError.textContent = 'Please type "DELETE" to confirm';
+    deleteError.style.display = 'block';
+    return;
+  }
+  
+  try {
+    await apiCall('/profile', {
+      method: 'DELETE',
+      body: JSON.stringify({ password })
+    });
+    
+    alert('Account deleted successfully. You will be redirected to login.');
+    localStorage.clear();
+    window.location.href = 'auth.html';
+    
+  } catch (error) {
+    deleteError.textContent = error.message;
+    deleteError.style.display = 'block';
+  }
+}
+
+// Export user data
+async function exportUserData() {
+  try {
+    const response = await fetch(`${API_BASE}/profile/export`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    
+    const blob = await response.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = `finsplit-data-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(downloadUrl);
+    
+    showNotification('Data exported successfully!', 'success');
+  } catch (error) {
+    showNotification('Failed to export data', 'error');
+  }
+}
+
 
     /* ---------- SPLIT FUNCTIONALITY ---------- */
     let emailValidationTimeout;
@@ -1068,6 +2072,7 @@
         validatedEmails = response.data.valid;
         const invalidEmails = response.data.invalid;
 
+        // Update input styling
         emailInputs.forEach(input => {
           const email = input.value.trim().toLowerCase();
           if (email) {
@@ -1081,6 +2086,7 @@
           }
         });
 
+        // Show validation messages
         let validationHtml = '';
         if (validatedEmails.length > 0) {
           validationHtml += `<div class="valid">✓ Valid users: ${validatedEmails.map(u => u.name).join(', ')}</div>`;
@@ -1090,12 +2096,13 @@
         }
 
         document.getElementById('emailValidation').innerHTML = validationHtml;
-        
+
+        // Update custom shares if in exact mode
         if (document.getElementById('splitType').value === 'exact') {
           updateCustomSharesInputs();
         }
-        updateSplitPreview();
 
+        updateSplitPreview();
       } catch (error) {
         console.error('Email validation error:', error);
       }
@@ -1123,6 +2130,7 @@
         convertValidatedEmails = response.data.valid;
         const invalidEmails = response.data.invalid;
 
+        // Update input styling
         emailInputs.forEach(input => {
           const email = input.value.trim().toLowerCase();
           if (email) {
@@ -1136,6 +2144,7 @@
           }
         });
 
+        // Show validation messages
         let validationHtml = '';
         if (convertValidatedEmails.length > 0) {
           validationHtml += `<div class="valid">✓ Valid users: ${convertValidatedEmails.map(u => u.name).join(', ')}</div>`;
@@ -1145,12 +2154,13 @@
         }
 
         document.getElementById('convertEmailValidation').innerHTML = validationHtml;
-        
+
+        // Update custom shares if in exact mode
         if (document.getElementById('convertSplitType').value === 'exact') {
           updateConvertCustomSharesInputs();
         }
-        updateConvertSplitPreview();
 
+        updateConvertSplitPreview();
       } catch (error) {
         console.error('Convert email validation error:', error);
       }
@@ -1160,14 +2170,13 @@
     function updateCustomSharesInputs() {
       const container = document.getElementById('customSharesInputs');
       const totalPeople = validatedEmails.length + 1;
-
+      
       if (totalPeople < 2) {
         container.innerHTML = '<p>Add email addresses to see custom amount fields</p>';
         return;
       }
 
       let inputsHtml = '';
-      
       inputsHtml += `
         <div class="custom-share-input">
           <label>You:</label>
@@ -1190,14 +2199,13 @@
     function updateConvertCustomSharesInputs() {
       const container = document.getElementById('convertCustomSharesInputs');
       const totalPeople = convertValidatedEmails.length + 1;
-
+      
       if (totalPeople < 2) {
         container.innerHTML = '<p>Add email addresses to see custom amount fields</p>';
         return;
       }
 
       let inputsHtml = '';
-      
       inputsHtml += `
         <div class="custom-share-input">
           <label>You:</label>
@@ -1233,14 +2241,14 @@
       let previewHtml = '';
 
       if (splitType === 'equal') {
-        const shareAmount = +(amount / totalPeople).toFixed(2);
+        const shareAmount = (amount / totalPeople).toFixed(2);
+        previewHtml += `<div class="preview-item"><span>You</span><span>₹${shareAmount}</span></div>`;
         
-        previewHtml += `<div class="preview-item"><span>You:</span><span>₹${shareAmount}</span></div>`;
         validatedEmails.forEach(user => {
-          previewHtml += `<div class="preview-item"><span>${user.name}:</span><span>₹${shareAmount}</span></div>`;
+          previewHtml += `<div class="preview-item"><span>${user.name}</span><span>₹${shareAmount}</span></div>`;
         });
-        previewHtml += `<div class="preview-item"><span>Total:</span><span>₹${amount.toFixed(2)}</span></div>`;
         
+        previewHtml += `<div class="preview-item"><span>Total</span><span>₹${amount.toFixed(2)}</span></div>`;
       } else if (splitType === 'exact') {
         const customInputs = document.querySelectorAll('.custom-share');
         let totalCustom = 0;
@@ -1250,18 +2258,20 @@
           totalCustom += value;
           
           if (index === 0) {
-            previewHtml += `<div class="preview-item"><span>You:</span><span>₹${value.toFixed(2)}</span></div>`;
+            previewHtml += `<div class="preview-item"><span>You</span><span>₹${value.toFixed(2)}</span></div>`;
           } else {
             const user = validatedEmails[index - 1];
-            previewHtml += `<div class="preview-item"><span>${user.name}:</span><span>₹${value.toFixed(2)}</span></div>`;
+            previewHtml += `<div class="preview-item"><span>${user.name}</span><span>₹${value.toFixed(2)}</span></div>`;
           }
         });
-        
-        const isValid = Math.abs(totalCustom - amount) < 0.01;
-        previewHtml += `<div class="preview-item" style="color: ${isValid ? 'white' : '#e53e3e'}">
-          <span>Total: ${isValid ? '✓' : '✗'}</span>
-          <span>₹${totalCustom.toFixed(2)} / ₹${amount.toFixed(2)}</span>
-        </div>`;
+
+        const isValid = Math.abs(totalCustom - amount) <= 0.01;
+        previewHtml += `
+          <div class="preview-item" style="color: ${isValid ? 'white' : '#e53e3e'}">
+            <span>Total ${isValid ? '✓' : '✗'}</span>
+            <span>₹${totalCustom.toFixed(2)} / ₹${amount.toFixed(2)}</span>
+          </div>
+        `;
       }
 
       previewContent.innerHTML = previewHtml;
@@ -1284,14 +2294,14 @@
       let previewHtml = '';
 
       if (splitType === 'equal') {
-        const shareAmount = +(expenseAmount / totalPeople).toFixed(2);
+        const shareAmount = (expenseAmount / totalPeople).toFixed(2);
+        previewHtml += `<div class="preview-item"><span>You</span><span>₹${shareAmount}</span></div>`;
         
-        previewHtml += `<div class="preview-item"><span>You:</span><span>₹${shareAmount}</span></div>`;
         convertValidatedEmails.forEach(user => {
-          previewHtml += `<div class="preview-item"><span>${user.name}:</span><span>₹${shareAmount}</span></div>`;
+          previewHtml += `<div class="preview-item"><span>${user.name}</span><span>₹${shareAmount}</span></div>`;
         });
-        previewHtml += `<div class="preview-item"><span>Total:</span><span>₹${expenseAmount.toFixed(2)}</span></div>`;
         
+        previewHtml += `<div class="preview-item"><span>Total</span><span>₹${expenseAmount.toFixed(2)}</span></div>`;
       } else if (splitType === 'exact') {
         const customInputs = document.querySelectorAll('.convert-custom-share');
         let totalCustom = 0;
@@ -1301,18 +2311,20 @@
           totalCustom += value;
           
           if (index === 0) {
-            previewHtml += `<div class="preview-item"><span>You:</span><span>₹${value.toFixed(2)}</span></div>`;
+            previewHtml += `<div class="preview-item"><span>You</span><span>₹${value.toFixed(2)}</span></div>`;
           } else {
             const user = convertValidatedEmails[index - 1];
-            previewHtml += `<div class="preview-item"><span>${user.name}:</span><span>₹${value.toFixed(2)}</span></div>`;
+            previewHtml += `<div class="preview-item"><span>${user.name}</span><span>₹${value.toFixed(2)}</span></div>`;
           }
         });
-        
-        const isValid = Math.abs(totalCustom - expenseAmount) < 0.01;
-        previewHtml += `<div class="preview-item" style="color: ${isValid ? 'white' : '#e53e3e'}">
-          <span>Total: ${isValid ? '✓' : '✗'}</span>
-          <span>₹${totalCustom.toFixed(2)} / ₹${expenseAmount.toFixed(2)}</span>
-        </div>`;
+
+        const isValid = Math.abs(totalCustom - expenseAmount) <= 0.01;
+        previewHtml += `
+          <div class="preview-item" style="color: ${isValid ? 'white' : '#e53e3e'}">
+            <span>Total ${isValid ? '✓' : '✗'}</span>
+            <span>₹${totalCustom.toFixed(2)} / ₹${expenseAmount.toFixed(2)}</span>
+          </div>
+        `;
       }
 
       previewContent.innerHTML = previewHtml;
@@ -1369,10 +2381,10 @@
 
         document.getElementById('splitSuccess').textContent = response.message;
         document.getElementById('splitSuccess').style.display = 'block';
-        
+
         // Reset form
         resetSplitForm();
-        
+
         setTimeout(() => {
           closeModal('createSplitModal');
           if (document.getElementById('splits').classList.contains('active')) {
@@ -1392,15 +2404,18 @@
 
     function resetSplitForm() {
       document.getElementById('createSplitModal').querySelector('form').reset();
+      
       document.getElementById('emailInputContainer').innerHTML = `
         <div class="email-input-row">
           <input type="email" class="split-email" placeholder="friend@example.com" />
           <button type="button" class="btn btn-secondary btn-small" onclick="addEmailInput()">+</button>
         </div>
       `;
+      
       document.getElementById('emailValidation').innerHTML = '';
       document.getElementById('splitPreview').style.display = 'none';
       document.getElementById('customSharesContainer').style.display = 'none';
+      
       validatedEmails = [];
       
       // Add event listener to first email input
@@ -1430,17 +2445,20 @@
 
       // Reset form
       document.getElementById('convertToSplitModal').querySelector('form').reset();
+      
       document.getElementById('convertEmailInputContainer').innerHTML = `
         <div class="email-input-row">
           <input type="email" class="split-email convert-email" placeholder="friend@example.com" />
           <button type="button" class="btn btn-secondary btn-small" onclick="addConvertEmailInput()">+</button>
         </div>
       `;
+      
       document.getElementById('convertEmailValidation').innerHTML = '';
       document.getElementById('convertSplitPreview').style.display = 'none';
       document.getElementById('convertCustomSharesContainer').style.display = 'none';
+      
       convertValidatedEmails = [];
-
+      
       // Add event listener
       const firstEmailInput = document.querySelector('.convert-email');
       if (firstEmailInput) {
@@ -1492,7 +2510,7 @@
 
         document.getElementById('convertSplitSuccess').textContent = response.message;
         document.getElementById('convertSplitSuccess').style.display = 'block';
-        
+
         setTimeout(() => {
           closeModal('convertToSplitModal');
           loadExpenses();
@@ -1509,132 +2527,148 @@
         convertBtn.textContent = 'Convert to Split';
       }
     }
+
     // Load splits
-    async function loadSplits() {
-      try {
-        const params = new URLSearchParams();
-        
-        if (currentSplitStatus !== 'all') {
-          params.append('status', currentSplitStatus);
-        }
-        
-        const category = document.getElementById('splitCategory')?.value;
-        if (category && category !== 'all') {
-          params.append('category', category);
-        }
-        
-        const startDate = document.getElementById('splitStartDate')?.value;
-        if (startDate) {
-          params.append('startDate', startDate);
-        }
-        
-        const endDate = document.getElementById('splitEndDate')?.value;
-        if (endDate) {
-          params.append('endDate', endDate);
-        }
+async function loadSplits() {
+  try {
+    const response = await apiCall('/splits');
+    splitsCache = response.data;
+    renderSplits();
+  } catch (error) {
+    console.error('Load splits error:', error);
+    showNotification('Failed to load splits', 'error');
+  }
+}
 
-        const queryString = params.toString();
-        const url = queryString ? `/splits?${queryString}` : '/splits';
-        
-        const response = await apiCall(url);
-        splitsCache = response.data;
-        
-        const list = document.getElementById('splitsList');
-        if (splitsCache.length === 0) {
-          list.innerHTML = '<li class="item"><div class="item-info"><p>No splits found. Create your first split!</p></div></li>';
-          return;
-        }
 
-        list.innerHTML = splitsCache.map(split => {
-          const userSplit = split.splits.find(s => s.user._id === currentUser._id);
-          const isOwner = split.owner._id === currentUser._id;
-          const isPaid = userSplit ? userSplit.paid : false;
-          const userShare = userSplit ? userSplit.share : 0;
-          
-          const totalParticipants = split.splits.length;
-          const paidParticipants = split.splits.filter(s => s.paid).length;
-          const unpaidAmount = split.splits.filter(s => !s.paid).reduce((sum, s) => sum + s.share, 0);
-          const completionPercentage = ((paidParticipants / totalParticipants) * 100).toFixed(0);
-          
-          let statusText = '';
-          let actionButtons = '';
-          let statusClass = '';
-          
-          if (isOwner) {
-            statusText = `You paid ₹${split.amount} • ${paidParticipants}/${totalParticipants} paid (${completionPercentage}%)`;
-            if (unpaidAmount > 0) {
-              statusText += ` • ₹${unpaidAmount.toFixed(2)} pending`;
-            }
-            statusClass = split.isSettled ? 'settled' : 'pending';
-            
-            actionButtons = `
-              <button class="btn btn-secondary btn-small" onclick="viewSplitDetails('${split._id}')">View Details</button>
-              ${!split.isSettled ? `<button class="btn btn-warning btn-small" onclick="openReminderModal('${split._id}')">Send Reminder</button>` : ''}
-              ${paidParticipants === 0 ? `<button class="btn btn-danger btn-small" onclick="deleteSplit('${split._id}')">Delete</button>` : ''}
-            `;
-          } else {
-            statusText = `${split.owner.name} paid ₹${split.amount} • Your share: ₹${userShare.toFixed(2)}`;
-            statusClass = isPaid ? 'paid' : 'unpaid';
-            
-            if (!isPaid) {
-              actionButtons = `
-                <button class="btn btn-success btn-small" onclick="paySplit('${split._id}')">Pay ₹${userShare.toFixed(2)}</button>
-                <button class="btn btn-secondary btn-small" onclick="viewSplitDetails('${split._id}')">View Details</button>
-              `;
-            } else {
-              actionButtons = `
-                <span style="color: #48bb78; font-weight: bold;">✓ Paid</span>
-                <button class="btn btn-secondary btn-small" onclick="viewSplitDetails('${split._id}')">View Details</button>
-              `;
-            }
-          }
-          
-          return `
-            <li class="item ${statusClass}">
-              <div class="item-info">
-                <h4>${split.description}</h4>
-                <p>${statusText}</p>
-                <p style="font-size: 12px; color: #718096;">
-                  ${split.splitType === 'equal' ? 'Split equally' : 'Custom amounts'} • 
-                  ${split.category !== 'Split' ? split.category + ' • ' : ''}
-                  ${new Date(split.createdAt).toLocaleDateString()}
-                </p>
-                ${!split.isSettled && !isPaid && !isOwner ? `
-                  <div class="progress-bar" style="margin-top: 8px;">
-                    <div class="progress-fill" style="width: ${completionPercentage}%">
-                      ${completionPercentage}% Complete
-                    </div>
-                  </div>
-                ` : ''}
-              </div>
-              <div>
-                <div style="font-weight:bold;color:${isPaid || (isOwner && split.isSettled) ? '#48bb78' : '#e53e3e'};">
-                  ${isOwner 
-                    ? (split.isSettled ? `✓ Settled` : `+₹${(split.amount - (userSplit?.share || 0)).toFixed(2)}`) 
-                    : (isPaid ? '✓ Paid' : `-₹${userShare.toFixed(2)}`)
-                  }
-                </div>
-                <div class="item-actions">
-                  ${actionButtons}
-                </div>
-              </div>
-            </li>
-          `;
-        }).join('');
-      } catch (error) {
-        showNotification('Failed to load splits', 'error');
+function renderSplits() {
+  const splits = splitsCache;
+  
+  if (!splits || splits.length === 0) {
+    document.getElementById('splitsList').innerHTML = `
+      <li class="item">
+        <div class="item-info">
+          <h4>No splits yet</h4>
+          <p>Create your first split to start sharing expenses!</p>
+          <div style="margin-top: 15px;">
+            <button class="btn btn-primary" onclick="openCreateSplitModal()">💸 Create Your First Split</button>
+          </div>
+        </div>
+      </li>
+    `;
+    return;
+  }
+
+  // Filter splits based on current tab
+  let filteredSplits = splits;
+  
+  if (currentSplitTab === 'pending') {
+    filteredSplits = splits.filter(split => {
+      const userSplit = split.splits?.find(s => s.user._id === currentUser._id);
+      return userSplit && !userSplit.paid;
+    });
+  } else if (currentSplitTab === 'settled') {
+    filteredSplits = splits.filter(split => {
+      const userSplit = split.splits?.find(s => s.user._id === currentUser._id);
+      return userSplit && userSplit.paid;
+    });
+  }
+
+  if (filteredSplits.length === 0) {
+    const emptyMessage = currentSplitTab === 'pending' ? 'No pending splits' : 
+                        currentSplitTab === 'settled' ? 'No settled splits' : 'No splits found';
+    
+    document.getElementById('splitsList').innerHTML = `
+      <li class="item">
+        <div class="item-info">
+          <h4>${emptyMessage}</h4>
+          <p>${currentSplitTab === 'pending' ? 'All your splits are paid!' : 
+               currentSplitTab === 'settled' ? 'No completed payments yet.' : ''}</p>
+        </div>
+      </li>
+    `;
+    return;
+  }
+
+  document.getElementById('splitsList').innerHTML = filteredSplits.map(split => {
+    const userSplit = split.splits?.find(s => s.user._id === currentUser._id);
+    const isPaid = userSplit?.paid || false;
+    const isOwner = split.owner._id === currentUser._id;
+    const paidCount = split.splits?.filter(s => s.paid).length || 0;
+    const totalParticipants = split.splits?.length || 0;
+    
+    let statusColor = isPaid ? '#48bb78' : '#e53e3e';
+    let statusText = isPaid ? 'Paid' : 'Pending';
+    let statusIcon = isPaid ? '✅' : '⏳';
+    
+    // If user is owner, show overall split status
+    if (isOwner) {
+      if (paidCount === totalParticipants) {
+        statusText = 'Completed';
+        statusIcon = '🎉';
+        statusColor = '#48bb78';
+      } else if (paidCount === 0) {
+        statusText = 'Not Paid';
+        statusIcon = '⏳';
+        statusColor = '#e53e3e';
+      } else {
+        statusText = `${paidCount}/${totalParticipants} Paid`;
+        statusIcon = '⏳';
+        statusColor = '#ed8936';
       }
     }
 
-    // Switch split tabs
-    function switchSplitTab(status, event) {
-      currentSplitStatus = status;
-      
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-      event.target.classList.add('active');
-      
-      loadSplits();
+    let actionButtons = '';
+    if (isOwner) {
+      actionButtons = `
+        <button class="btn btn-secondary btn-small" onclick="viewSplitDetails('${split._id}')">View Details</button>
+        ${paidCount === 0 ? `<button class="btn btn-warning btn-small" onclick="openReminderModal('${split._id}')">Send Reminder</button>` : ''}
+      `;
+    } else {
+      actionButtons = `
+        <button class="btn btn-secondary btn-small" onclick="viewSplitDetails('${split._id}')">View Details</button>
+        ${!isPaid ? `<button class="btn btn-success btn-small" onclick="paySplit('${split._id}')">Pay My Share</button>` : ''}
+      `;
     }
+
+    return `
+      <li class="item" style="border-left-color: ${statusColor}">
+        <div class="item-info">
+          <h4 style="display: flex; align-items: center; gap: 8px;">
+            ${statusIcon} ${split.description}
+            ${isOwner ? '<span style="font-size: 12px; background: #667eea; color: white; padding: 2px 6px; border-radius: 12px;">Owner</span>' : ''}
+          </h4>
+          <p>Total: ₹${split.amount.toLocaleString()} • Your share: ₹${(userSplit?.share || 0).toLocaleString()}</p>
+          <p style="font-size: 12px; color: #718096;">
+            ${new Date(split.date).toLocaleDateString()} • 
+            ${totalParticipants} participant${totalParticipants > 1 ? 's' : ''}
+            ${split.splitType ? ` • ${split.splitType} split` : ''}
+          </p>
+        </div>
+        <div>
+          <div style="font-weight:bold;color:${statusColor};">${statusText}</div>
+          <div class="item-actions">
+            ${actionButtons}
+          </div>
+        </div>
+      </li>
+    `;
+  }).join('');
+}
+
+
+    // Switch split tabs
+    function switchSplitTab(tab, event) {
+  currentSplitTab = tab;
+  
+  // Update tab styling
+  document.querySelectorAll('#splits .tabs .tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  // Re-render splits with new filter
+  renderSplits();
+}
+
 
     // Clear split filters
     function clearSplitFilters() {
@@ -1644,7 +2678,7 @@
       loadSplits();
     }
 
-    // View split details
+    // View split details - FIXED VERSION
     async function viewSplitDetails(splitId) {
       try {
         const response = await apiCall(`/splits/${splitId}`);
@@ -1655,6 +2689,13 @@
         const isOwner = split.owner._id === currentUser._id;
         const userSplit = split.splits.find(s => s.user._id === currentUser._id);
         
+        // Calculate stats
+        const totalPaid = split.splits.filter(s => s.paid).length;
+        const totalParticipants = split.splits.length;
+        const amountPaid = split.splits.filter(s => s.paid).reduce((sum, s) => sum + s.share, 0);
+        const amountPending = split.splits.filter(s => !s.paid).reduce((sum, s) => sum + s.share, 0);
+        const completionPercentage = totalParticipants > 0 ? ((totalPaid / totalParticipants) * 100).toFixed(1) : 0;
+        
         let detailsHtml = `
           <div class="stats-grid">
             <div class="stat-card">
@@ -1662,15 +2703,15 @@
               <div class="stat-label">Total Amount</div>
             </div>
             <div class="stat-card">
-              <div class="stat-number">${split.stats.totalParticipants}</div>
+              <div class="stat-number">${totalParticipants}</div>
               <div class="stat-label">Participants</div>
             </div>
             <div class="stat-card">
-              <div class="stat-number">${split.stats.totalPaid}</div>
+              <div class="stat-number">${totalPaid}</div>
               <div class="stat-label">Paid</div>
             </div>
             <div class="stat-card">
-              <div class="stat-number">${split.stats.completionPercentage}%</div>
+              <div class="stat-number">${completionPercentage}%</div>
               <div class="stat-label">Complete</div>
             </div>
           </div>
@@ -1729,8 +2770,8 @@
           <div style="margin: 20px 0;">
             <h4 style="margin-bottom: 10px;">Progress</h4>
             <div class="progress-bar">
-              <div class="progress-fill" style="width: ${split.stats.completionPercentage}%">
-                ₹${split.stats.amountPaid.toFixed(2)} / ₹${split.amount} (${split.stats.completionPercentage}%)
+              <div class="progress-fill" style="width: ${completionPercentage}%">
+                ₹${amountPaid.toFixed(2)} / ₹${split.amount} (${completionPercentage}%)
               </div>
             </div>
           </div>
@@ -1738,23 +2779,36 @@
 
         // Action buttons
         if (isOwner && !split.isSettled) {
-          detailsHtml += `
-            <div style="margin: 20px 0; text-align: center;">
-              <button class="btn btn-warning" onclick="openReminderModal('${split._id}')">
-                Send Reminder to Unpaid (${split.stats.totalPending})
-              </button>
-              ${split.stats.totalPaid === 0 ? `
-                <button class="btn btn-danger" onclick="deleteSplit('${split._id}')">
-                  Delete Split
-                </button>
-              ` : ''}
-            </div>
-          `;
-        } else if (!isOwner && userSplit && !userSplit.paid) {
+  const unpaidCount = split.splits.filter(s => !s.paid).length;
+  detailsHtml += `
+    <div style="margin: 20px 0; text-align: center;">
+      ${unpaidCount > 0 ? `
+        <button class="btn btn-warning" onclick="openReminderModal('${split._id}')">
+          Send Reminder to Unpaid (${unpaidCount})
+        </button>
+      ` : ''}
+      ${totalPaid <= 1 ? `
+        <button class="btn btn-danger" onclick="deleteSplit('${split._id}')">
+          Delete Split
+        </button>
+      ` : ''}
+    </div>
+  `;
+}
+
+ else if (!isOwner && userSplit && !userSplit.paid) {
           detailsHtml += `
             <div style="margin: 20px 0; text-align: center;">
               <button class="btn btn-success btn-large" onclick="paySplit('${split._id}')">
                 Pay Your Share (₹${userSplit.share.toFixed(2)})
+              </button>
+            </div>
+          `;
+        } else if (isOwner && userSplit && !userSplit.paid) {
+          detailsHtml += `
+            <div style="margin: 20px 0; text-align: center;">
+              <button class="btn btn-success btn-large" onclick="paySplit('${split._id}')">
+                Pay My Share (₹${userSplit.share.toFixed(2)})
               </button>
             </div>
           `;
@@ -1765,6 +2819,7 @@
         
       } catch (error) {
         showNotification('Failed to load split details', 'error');
+        console.error('Split details error:', error);
       }
     }
 
@@ -1815,23 +2870,40 @@
     }
 
     // Delete split
-    async function deleteSplit(splitId) {
-      if (!confirm('Delete this split? This action cannot be undone.')) return;
-      
-      try {
-        await apiCall(`/splits/${splitId}`, {
-          method: 'DELETE'
-        });
-        
-        showNotification('Split deleted successfully', 'success');
-        closeModal('splitDetailsModal');
-        loadSplits();
-        loadDashboard();
-        
-      } catch (error) {
-        showNotification('Failed to delete split: ' + error.message, 'error');
-      }
+   async function deleteSplit(splitId) {
+  try {
+    // Get split details to show appropriate confirmation
+    const split = splitsCache.find(s => s._id === splitId);
+    if (!split) return;
+    
+    const totalParticipants = split.splits.length;
+    const paidCount = split.splits.filter(s => s.paid).length;
+    const isFullyPaid = paidCount === totalParticipants;
+    
+    let confirmMessage;
+    if (isFullyPaid) {
+      confirmMessage = `Delete "${split.description}" split?\n\n⚠️ This split is fully settled. Deleting will remove all payment records.\n\nThis action cannot be undone.`;
+    } else {
+      confirmMessage = `Delete "${split.description}" split? This action cannot be undone.`;
     }
+    
+    if (!confirm(confirmMessage)) return;
+    
+    await apiCall(`/splits/${splitId}`, {
+      method: 'DELETE'
+    });
+    
+    showNotification('Split deleted successfully', 'success');
+    closeModal('splitDetailsModal');
+    loadSplits();
+    loadDashboard();
+    
+  } catch (error) {
+    showNotification('Failed to delete split: ' + error.message, 'error');
+  }
+}
+
+
 
     // Open reminder modal
     function openReminderModal(splitId) {
@@ -1977,10 +3049,11 @@
                 }
                 
                 actionButtons = `
-                  <button class="btn btn-secondary btn-small" onclick="viewSplitDetails('${exp._id}')">Manage Split</button>
+                  ${!userSplit.paid ? `<button class="btn btn-success btn-small" onclick="paySplit('${exp._id}')">Pay My Share</button>` : ''}
                   ${unpaidCount > 0 ? `<button class="btn btn-warning btn-small" onclick="openReminderModal('${exp._id}')">Remind</button>` : ''}
-                  ${paidCount === 0 ? `<button class="btn btn-danger btn-small" onclick="deleteExpense('${exp._id}')">Delete</button>` : ''}
+                  ${paidCount <= 1 ? `<button class="btn btn-danger btn-small" onclick="deleteExpense('${exp._id}')">Delete</button>` : ''}
                 `;
+
               } else {
                 statusText += ` • ${userSplit.paid ? 'Paid' : 'Unpaid'}`;
                 if (!userSplit.paid) {
@@ -2110,12 +3183,16 @@
         }
         
         closeModal('addExpenseModal');
-        currentEditingExpenseId = null;
-        
-        if (document.getElementById('expenses').classList.contains('active')) {
-          loadExpenses();
-        }
-        loadDashboard();
+currentEditingExpenseId = null;
+
+if (document.getElementById('expenses').classList.contains('active')) {
+  loadExpenses();
+}
+if (document.getElementById('budget').classList.contains('active')) {
+  loadBudgets(); // ADD THIS LINE
+}
+loadDashboard();
+
         
       } catch (err) {
         showNotification(`Failed to ${currentEditingExpenseId ? 'update' : 'add'} expense: ${err.message}`, 'error');
@@ -2131,8 +3208,12 @@
       try {
         await apiCall(`/expenses/${id}`, { method: 'DELETE' });
         showNotification('Expense deleted!', 'success');
-        loadExpenses();
-        loadDashboard();
+loadExpenses();
+if (document.getElementById('budget').classList.contains('active')) {
+  loadBudgets(); // ADD THIS LINE
+}
+loadDashboard();
+
       } catch (err) {
         showNotification('Failed to delete expense: ' + err.message, 'error');
       }
@@ -2278,6 +3359,8 @@
           `;
         }).join('') || '<li class="item"><div class="item-info"><p>No recent activity</p></div></li>';
         
+        await loadCharts();
+
       } catch (err) {
         showNotification('Failed to load dashboard', 'error');
       }
@@ -2590,7 +3673,1119 @@
     console.log('  Ctrl/Cmd + E: Export Data');
     console.log('  Escape: Close Modals');
     
+/* ---------- GROUPS FUNCTIONALITY ---------- */
+let groupsCache = [];
+let groupEmailValidationTimeout;
+let validatedGroupEmails = [];
+let currentGroupId = null;
+
+// Load groups
+async function loadGroups() {
+  try {
+    const response = await apiCall('/groups');
+    groupsCache = response.data;
+    
+    const list = document.getElementById('groupsList');
+    const statsContainer = document.getElementById('groupStats');
+    
+    if (groupsCache.length === 0) {
+      list.innerHTML = `
+        <li class="item">
+          <div class="item-info">
+            <h4>No groups yet</h4>
+            <p>Create your first group to organize expenses with friends, family, or colleagues!</p>
+            <div style="margin-top: 15px;">
+              <button class="btn btn-primary" onclick="openCreateGroupModal()">👥 Create Your First Group</button>
+            </div>
+          </div>
+        </li>
+      `;
+      statsContainer.style.display = 'none';
+      return;
+    }
+
+    // Calculate stats
+    const totalMembers = groupsCache.reduce((sum, group) => sum + (group.memberCount || 0), 0);
+    const totalExpenses = groupsCache.reduce((sum, group) => sum + (group.totalExpenses || 0), 0);
+    const totalSplits = groupsCache.reduce((sum, group) => sum + (group.totalSplits || 0), 0);
+
+    // Update stats
+    document.getElementById('totalGroups').textContent = groupsCache.length;
+    document.getElementById('totalMembers').textContent = totalMembers;
+    document.getElementById('groupExpenses').textContent = totalExpenses;
+    document.getElementById('groupSplits').textContent = totalSplits;
+    statsContainer.style.display = 'grid';
+
+    // Render groups
+    list.innerHTML = groupsCache.map(group => {
+      const isOwner = group.owner._id === currentUser._id;
+      const memberCount = group.members ? group.members.length + 1 : 1; // +1 for owner
+      
+      return `
+        <li class="item" style="border-left-color: ${group.color}">
+          <div class="item-info">
+            <h4 style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 20px;">${group.icon}</span>
+              ${group.name}
+              ${isOwner ? '<span style="font-size: 12px; background: #667eea; color: white; padding: 2px 6px; border-radius: 12px;">Owner</span>' : ''}
+            </h4>
+            <p>${group.description || 'No description'}</p>
+            <p style="font-size: 12px; color: #718096;">
+              ${memberCount} member${memberCount > 1 ? 's' : ''} • 
+              Created ${new Date(group.createdAt).toLocaleDateString()}
+              ${group.totalExpenses > 0 ? ` • ${group.totalExpenses} expenses` : ''}
+            </p>
+          </div>
+          <div>
+            <div style="font-weight:bold;color:${group.color};">${group.icon}</div>
+            <div class="item-actions">
+              <button class="btn btn-secondary btn-small" onclick="viewGroupDetails('${group._id}')">View Details</button>
+              ${isOwner ? `<button class="btn btn-warning btn-small" onclick="openAddMemberModal('${group._id}')">Add Member</button>` : ''}
+              ${isOwner ? `<button class="btn btn-danger btn-small" onclick="deleteGroup('${group._id}')">Delete</button>` : `<button class="btn btn-warning btn-small" onclick="leaveGroup('${group._id}')">Leave</button>`}
+            </div>
+          </div>
+        </li>
+      `;
+    }).join('');
+
+  } catch (error) {
+    console.error('Load groups error:', error);
+    showNotification('Failed to load groups', 'error');
+  }
+}
+
+// Open create group modal
+function openCreateGroupModal() {
+  currentGroupId = null;
+  document.getElementById('createGroupModalTitle').textContent = 'Create New Group';
+  document.getElementById('saveGroupBtn').textContent = 'Create Group';
+  
+  // Reset form
+  document.getElementById('createGroupModal').querySelector('form').reset();
+  document.getElementById('groupColor').value = '#667eea';
+  document.getElementById('groupIcon').value = '👥';
+  
+  document.getElementById('groupEmailInputContainer').innerHTML = `
+    <div class="email-input-row">
+      <input type="email" class="group-email" placeholder="friend@example.com" />
+      <button type="button" class="btn btn-secondary btn-small" onclick="addGroupEmailInput()">+</button>
+    </div>
+  `;
+  
+  document.getElementById('groupEmailValidation').innerHTML = '';
+  document.getElementById('groupPreview').style.display = 'none';
+  validatedGroupEmails = [];
+  
+  // Add event listener to first email input
+  const firstInput = document.querySelector('.group-email');
+  if (firstInput) {
+    firstInput.addEventListener('input', debounceValidateGroupEmails);
+  }
+  
+  openModal('createGroupModal');
+}
+
+// Add email input for groups
+function addGroupEmailInput() {
+  const container = document.getElementById('groupEmailInputContainer');
+  const newRow = document.createElement('div');
+  newRow.className = 'email-input-row';
+  newRow.innerHTML = `
+    <input type="email" class="group-email" placeholder="friend@example.com" />
+    <button type="button" class="btn btn-danger btn-small remove-email-btn" onclick="removeGroupEmailInput(this)">×</button>
+  `;
+  container.appendChild(newRow);
+  
+  const emailInput = newRow.querySelector('.group-email');
+  emailInput.addEventListener('input', debounceValidateGroupEmails);
+}
+
+function removeGroupEmailInput(button) {
+  button.parentElement.remove();
+  debounceValidateGroupEmails();
+}
+
+// Validate group emails
+function debounceValidateGroupEmails() {
+  clearTimeout(groupEmailValidationTimeout);
+  groupEmailValidationTimeout = setTimeout(validateGroupEmails, 800);
+}
+
+async function validateGroupEmails() {
+  const emailInputs = document.querySelectorAll('#groupEmailInputContainer .group-email');
+  const emails = Array.from(emailInputs)
+    .map(input => input.value.trim())
+    .filter(email => email.length > 0);
+
+  if (emails.length === 0) {
+    document.getElementById('groupEmailValidation').innerHTML = '';
+    validatedGroupEmails = [];
+    updateGroupPreview();
+    return;
+  }
+
+  try {
+    const response = await apiCall('/splits/validate-emails', {
+      method: 'POST',
+      body: JSON.stringify({ emails })
+    });
+
+    validatedGroupEmails = response.data.valid;
+    const invalidEmails = response.data.invalid;
+
+    // Update input styling
+    emailInputs.forEach(input => {
+      const email = input.value.trim().toLowerCase();
+      if (email) {
+        if (response.data.valid.some(v => v.email.toLowerCase() === email)) {
+          input.className = 'group-email valid';
+        } else if (response.data.invalid.includes(email)) {
+          input.className = 'group-email invalid';
+        } else {
+          input.className = 'group-email';
+        }
+      }
+    });
+
+    // Show validation messages
+    let validationHtml = '';
+    if (validatedGroupEmails.length > 0) {
+      validationHtml += `<div class="valid">✓ Valid users: ${validatedGroupEmails.map(u => u.name).join(', ')}</div>`;
+    }
+    if (invalidEmails.length > 0) {
+      validationHtml += `<div class="invalid">✗ Not registered: ${invalidEmails.join(', ')}</div>`;
+    }
+
+    document.getElementById('groupEmailValidation').innerHTML = validationHtml;
+    updateGroupPreview();
+
+  } catch (error) {
+    console.error('Group email validation error:', error);
+  }
+}
+
+// Update group preview
+function updateGroupPreview() {
+  const name = document.getElementById('groupName').value.trim();
+  const color = document.getElementById('groupColor').value;
+  const icon = document.getElementById('groupIcon').value;
+  const previewContainer = document.getElementById('groupPreview');
+  const previewContent = document.getElementById('groupPreviewContent');
+
+  if (!name) {
+    previewContainer.style.display = 'none';
+    return;
+  }
+
+  const totalMembers = validatedGroupEmails.length + 1; // +1 for creator
+
+  let previewHtml = `
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+      <span style="font-size: 24px;">${icon}</span>
+      <div>
+        <h4 style="margin: 0; color: ${color};">${name}</h4>
+        <p style="margin: 0; font-size: 14px; color: #718096;">${totalMembers} member${totalMembers > 1 ? 's' : ''}</p>
+      </div>
+    </div>
+  `;
+
+  if (validatedGroupEmails.length > 0) {
+    previewHtml += '<h5>Members:</h5>';
+    previewHtml += `<div style="margin-bottom: 8px; color: ${color};">• You (Admin)</div>`;
+    validatedGroupEmails.forEach(user => {
+      previewHtml += `<div style="margin-bottom: 8px;">• ${user.name} (${user.email})</div>`;
+    });
+  } else {
+    previewHtml += '<p style="color: #718096;">You will be the only member initially. You can add more members later.</p>';
+  }
+
+  previewContent.innerHTML = previewHtml;
+  previewContainer.style.display = 'block';
+}
+
+// Save group
+async function saveGroup(event) {
+  event.preventDefault();
+  
+  const saveBtn = document.getElementById('saveGroupBtn');
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Creating...';
+  
+  document.getElementById('groupError').style.display = 'none';
+  document.getElementById('groupSuccess').style.display = 'none';
+
+  try {
+    const payload = {
+      name: document.getElementById('groupName').value.trim(),
+      description: document.getElementById('groupDescription').value.trim(),
+      color: document.getElementById('groupColor').value,
+      icon: document.getElementById('groupIcon').value,
+      members: validatedGroupEmails.map(u => u.email)
+    };
+
+    const response = await apiCall('/groups', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+
+    document.getElementById('groupSuccess').textContent = response.message;
+    document.getElementById('groupSuccess').style.display = 'block';
+
+    setTimeout(() => {
+      closeModal('createGroupModal');
+      loadGroups();
+    }, 2000);
+
+  } catch (error) {
+    document.getElementById('groupError').textContent = error.message || 'Failed to create group';
+    document.getElementById('groupError').style.display = 'block';
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Create Group';
+  }
+}
+
+// View group details
+async function viewGroupDetails(groupId) {
+  try {
+    const response = await apiCall(`/groups/${groupId}`);
+    const group = response.data;
+    
+    document.getElementById('groupDetailsTitle').textContent = `${group.icon} ${group.name}`;
+    
+    const isOwner = group.owner._id === currentUser._id;
+    const isAdmin = group.members.some(m => m.user._id === currentUser._id && m.role === 'admin') || isOwner;
+    
+    let detailsHtml = `
+      <div style="background: ${group.color}15; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid ${group.color};">
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <span style="font-size: 48px;">${group.icon}</span>
+          <div>
+            <h2 style="margin: 0; color: ${group.color};">${group.name}</h2>
+            <p style="margin: 5px 0; color: #718096;">${group.description || 'No description'}</p>
+            <p style="margin: 0; font-size: 14px; color: #718096;">
+              Created by ${group.owner.name} on ${new Date(group.createdAt).toLocaleDateString()}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">${group.members.length + 1}</div>
+          <div class="stat-label">Members</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">${group.stats.totalExpenses}</div>
+          <div class="stat-label">Expenses</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">₹${group.stats.totalAmount.toFixed(2)}</div>
+          <div class="stat-label">Total Amount</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">${group.stats.totalSplits}</div>
+          <div class="stat-label">Splits</div>
+        </div>
+      </div>
+
+      <div style="margin: 20px 0;">
+        <h4 style="margin-bottom: 15px;">Members</h4>
+        <div class="split-participant" style="border-left-color: ${group.color};">
+          <div>
+            <strong>${group.owner.name}</strong> <span style="color: ${group.color};">(Owner)</span>
+            <br><small>${group.owner.email}</small>
+          </div>
+          <div style="color: ${group.color}; font-weight: bold;">Admin</div>
+        </div>
+    `;
+
+    group.members.forEach(member => {
+      detailsHtml += `
+        <div class="split-participant">
+          <div>
+            <strong>${member.user.name}</strong>
+            <br><small>${member.user.email}</small>
+            <br><small style="color: #718096;">Joined ${new Date(member.joinedAt).toLocaleDateString()}</small>
+          </div>
+          <div>
+            <span style="color: ${member.role === 'admin' ? group.color : '#718096'}; font-weight: bold;">
+              ${member.role === 'admin' ? 'Admin' : 'Member'}
+            </span>
+            ${isAdmin && member.user._id !== currentUser._id ? `
+              <br><button class="btn btn-danger btn-small" style="margin-top: 5px;" 
+                        onclick="removeMember('${group._id}', '${member.user._id}')">
+                Remove
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    });
+
+    detailsHtml += '</div>';
+
+    // Recent activity
+    if (group.stats.recentActivity && group.stats.recentActivity.length > 0) {
+      detailsHtml += `
+        <div style="margin: 20px 0;">
+          <h4 style="margin-bottom: 15px;">Recent Activity</h4>
+      `;
+      
+      group.stats.recentActivity.forEach(activity => {
+        detailsHtml += `
+          <div class="split-participant">
+            <div>
+              <strong>${activity.description}</strong>
+              <br><small>${activity.category} • ${new Date(activity.createdAt).toLocaleDateString()}</small>
+            </div>
+            <div style="font-weight: bold; color: #e53e3e;">₹${activity.amount.toFixed(2)}</div>
+          </div>
+        `;
+      });
+      
+      detailsHtml += '</div>';
+    }
+
+    // Action buttons
+    if (isAdmin) {
+      detailsHtml += `
+        <div style="margin: 20px 0; text-align: center;">
+          <button class="btn btn-primary" onclick="openAddMemberModal('${group._id}')">
+            Add Member
+          </button>
+          ${isOwner ? `
+            <button class="btn btn-danger" onclick="deleteGroup('${group._id}')">
+              Delete Group
+            </button>
+          ` : `
+            <button class="btn btn-warning" onclick="leaveGroup('${group._id}')">
+              Leave Group
+            </button>
+          `}
+        </div>
+      `;
+    } else {
+      detailsHtml += `
+        <div style="margin: 20px 0; text-align: center;">
+          <button class="btn btn-warning" onclick="leaveGroup('${group._id}')">
+            Leave Group
+          </button>
+        </div>
+      `;
+    }
+
+    document.getElementById('groupDetailsContent').innerHTML = detailsHtml;
+    openModal('groupDetailsModal');
+    
+  } catch (error) {
+    showNotification('Failed to load group details', 'error');
+    console.error('Group details error:', error);
+  }
+}
+
+// Add event listeners for group form
+document.getElementById('groupName')?.addEventListener('input', updateGroupPreview);
+document.getElementById('groupColor')?.addEventListener('change', updateGroupPreview);
+document.getElementById('groupIcon')?.addEventListener('change', updateGroupPreview);
+
+// Update groups section loader
+function loadSectionData(id) {
+  if (id === 'dashboard') loadDashboard();
+  if (id === 'expenses') loadExpenses();
+  if (id === 'splits') loadSplits();
+  if (id === 'groups') loadGroups(); // Add this line
+}
+
+/* ---------- BUDGET FUNCTIONALITY ---------- */
+let budgetsCache = [];
+let currentBudgetTab = 'all';
+let currentEditingBudgetId = null;
+
+// Load budgets
+async function loadBudgets() {
+  try {
+    const [budgetsResponse, analyticsResponse] = await Promise.all([
+      apiCall('/budgets'),
+      apiCall('/budgets/analytics/summary')
+    ]);
+
+    budgetsCache = budgetsResponse.data;
+    const analytics = analyticsResponse.data;
+    
+    const list = document.getElementById('budgetsList');
+    const summaryStats = document.getElementById('budgetSummaryStats');
+    const statusOverview = document.getElementById('budgetStatusOverview');
+    const analyticsSection = document.getElementById('budgetAnalytics');
+    
+    if (budgetsCache.length === 0) {
+      list.innerHTML = `
+        <li class="item">
+          <div class="item-info">
+            <h4>No budgets created yet</h4>
+            <p>Create your first budget to start tracking your spending goals!</p>
+            <div style="margin-top: 15px;">
+              <button class="btn btn-primary" onclick="openCreateBudgetModal()">📊 Create Your First Budget</button>
+            </div>
+            <div style="margin-top: 10px; font-size: 14px; color: #718096;">
+              💡 <strong>Tip:</strong> Start with a monthly budget for your most frequent expense category
+            </div>
+          </div>
+        </li>
+      `;
+      summaryStats.style.display = 'none';
+      statusOverview.style.display = 'none';
+      analyticsSection.style.display = 'none';
+      return;
+    }
+
+    // Update summary stats
+    document.getElementById('totalBudgeted').textContent = `₹${analytics.totalBudgeted.toLocaleString()}`;
+    document.getElementById('totalSpent').textContent = `₹${analytics.totalSpent.toLocaleString()}`;
+    document.getElementById('budgetRemaining').textContent = `₹${analytics.remaining.toLocaleString()}`;
+    document.getElementById('overallProgress').textContent = `${analytics.overallPercentage}%`;
+    
+    // Color code the progress
+    const progressCard = document.getElementById('overallProgressCard');
+    if (analytics.overallPercentage >= 100) {
+      progressCard.style.borderLeftColor = '#e53e3e';
+    } else if (analytics.overallPercentage >= 80) {
+      progressCard.style.borderLeftColor = '#ed8936';
+    } else {
+      progressCard.style.borderLeftColor = '#48bb78';
+    }
+
+    summaryStats.style.display = 'grid';
+    statusOverview.style.display = 'block';
+
+    // Filter budgets based on current tab
+    let filteredBudgets = budgetsCache;
+    if (currentBudgetTab === 'on-track') {
+      filteredBudgets = budgetsCache.filter(b => !b.isExceeded && b.spentPercentage <= 80);
+    } else if (currentBudgetTab === 'near-limit') {
+      filteredBudgets = budgetsCache.filter(b => !b.isExceeded && b.spentPercentage > 80);
+    } else if (currentBudgetTab === 'exceeded') {
+      filteredBudgets = budgetsCache.filter(b => b.isExceeded);
+    }
+
+    // Render budgets
+    list.innerHTML = filteredBudgets.map(budget => {
+      const progressClass = budget.isExceeded ? 'exceeded' : 
+                           budget.spentPercentage >= 80 ? 'near-limit' : 'on-track';
+      
+      let statusIcon = '🟢';
+      let statusText = 'On Track';
+      if (budget.isExceeded) {
+        statusIcon = '🔴';
+        statusText = 'Exceeded';
+      } else if (budget.spentPercentage >= 80) {
+        statusIcon = '🟡';
+        statusText = 'Near Limit';
+      }
+
+      const daysRemainingClass = budget.daysRemaining <= 7 ? 'urgent' : '';
+      
+      return `
+        <li class="item budget-card ${progressClass}">
+          <div class="item-info">
+            <h4 style="display: flex; align-items: center; gap: 8px;">
+              ${statusIcon} ${budget.name}
+              <span class="days-remaining ${daysRemainingClass}">
+                ${budget.daysRemaining} days left
+              </span>
+            </h4>
+            <p>${budget.category}${budget.period ? ` • ${budget.period}` : ''}</p>
+            
+            <div class="budget-progress" style="margin: 12px 0;">
+              <div class="budget-progress-fill ${progressClass}" style="width: ${Math.min(budget.spentPercentage, 100)}%">
+                ${budget.spentPercentage}%
+              </div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; font-size: 14px; margin-top: 8px;">
+              <span>Spent: ₹${budget.spent.toLocaleString()}</span>
+              <span>Budget: ₹${budget.amount.toLocaleString()}</span>
+            </div>
+            
+            ${budget.isExceeded ? `
+              <div class="budget-alert">
+                ⚠️ Budget exceeded by ₹${(budget.spent - budget.amount).toFixed(2)}!
+              </div>
+            ` : budget.spentPercentage >= budget.alertThreshold ? `
+              <div class="budget-alert warning">
+                ⚠️ You've spent ${budget.spentPercentage}% of your budget
+              </div>
+            ` : ''}
+          </div>
+          <div>
+            <div style="font-weight:bold;color:${budget.isExceeded ? '#e53e3e' : budget.spentPercentage >= 80 ? '#ed8936' : '#48bb78'};">
+              ${statusText}
+            </div>
+            <div class="item-actions">
+              <button class="btn btn-secondary btn-small" onclick="viewBudgetDetails('${budget._id}')">View Details</button>
+              <button class="btn btn-warning btn-small" onclick="editBudget('${budget._id}')">Edit</button>
+              <button class="btn btn-danger btn-small" onclick="deleteBudget('${budget._id}')">Delete</button>
+              ${new Date() > new Date(budget.endDate) ? `
+                <button class="btn btn-primary btn-small" onclick="resetBudget('${budget._id}')">Reset Period</button>
+              ` : ''}
+            </div>
+          </div>
+        </li>
+      `;
+    }).join('');
+
+    // Show analytics if there are budgets
+    if (analytics.categoryBreakdown && analytics.categoryBreakdown.length > 0) {
+      let analyticsHtml = '<h4 style="margin-bottom: 15px;">Spending by Category</h4>';
+      
+      analytics.categoryBreakdown.forEach(cat => {
+        const progressClass = cat.percentage >= 100 ? 'exceeded' : 
+                             cat.percentage >= 80 ? 'near-limit' : '';
+        
+        analyticsHtml += `
+          <div class="category-item ${progressClass}">
+            <div>
+              <strong>${cat.category}</strong>
+              <div style="font-size: 12px; color: #718096;">
+                ${cat.count} budget${cat.count > 1 ? 's' : ''}
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-weight: bold;">₹${cat.spent.toLocaleString()} / ₹${cat.budgeted.toLocaleString()}</div>
+              <div style="font-size: 12px; color: ${cat.percentage >= 100 ? '#e53e3e' : cat.percentage >= 80 ? '#ed8936' : '#48bb78'};">
+                ${cat.percentage}%
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      
+      document.getElementById('categoryBreakdown').innerHTML = analyticsHtml;
+      analyticsSection.style.display = 'block';
+    }
+
+  } catch (error) {
+    console.error('Load budgets error:', error);
+    showNotification('Failed to load budgets', 'error');
+  }
+}
+
+// Switch budget tabs
+function switchBudgetTab(tab, event) {
+  currentBudgetTab = tab;
+  
+  document.querySelectorAll('#budgetStatusOverview .tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  loadBudgets();
+}
+
+// Open create budget modal
+function openCreateBudgetModal() {
+  currentEditingBudgetId = null;
+  document.getElementById('createBudgetModalTitle').textContent = 'Create New Budget';
+  
+  // Reset form
+  document.getElementById('createBudgetModal').querySelector('form').reset();
+  document.getElementById('budgetPeriod').value = 'monthly';
+  document.getElementById('budgetAlertThreshold').value = 80;
+  document.getElementById('thresholdDisplay').textContent = '80%';
+  
+  // Set default dates for monthly budget
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  
+  document.getElementById('budgetStartDate').value = startOfMonth.toISOString().split('T')[0];
+  document.getElementById('budgetEndDate').value = endOfMonth.toISOString().split('T')[0];
+  
+  document.getElementById('budgetPreview').style.display = 'none';
+  document.getElementById('budgetError').style.display = 'none';
+  document.getElementById('budgetSuccess').style.display = 'none';
+  
+  openModal('createBudgetModal');
+}
+
+// Update budget dates based on period
+function updateBudgetDates() {
+  const period = document.getElementById('budgetPeriod').value;
+  const now = new Date();
+  let startDate, endDate;
+  
+  switch (period) {
+    case 'weekly':
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+      endDate = new Date(startDate.getTime() + (6 * 24 * 60 * 60 * 1000));
+      break;
+    case 'monthly':
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      break;
+    case 'quarterly':
+      const quarter = Math.floor(now.getMonth() / 3);
+      startDate = new Date(now.getFullYear(), quarter * 3, 1);
+      endDate = new Date(now.getFullYear(), (quarter + 1) * 3, 0);
+      break;
+    case 'yearly':
+      startDate = new Date(now.getFullYear(), 0, 1);
+      endDate = new Date(now.getFullYear(), 11, 31);
+      break;
+  }
+  
+  document.getElementById('budgetStartDate').value = startDate.toISOString().split('T')[0];
+  document.getElementById('budgetEndDate').value = endDate.toISOString().split('T')[0];
+}
+
+function updateBudgetEndDate() {
+  const period = document.getElementById('budgetPeriod').value;
+  const startDateValue = document.getElementById('budgetStartDate').value;
+  
+  if (!startDateValue) return;
+  
+  const startDate = new Date(startDateValue);
+  let endDate;
+  
+  switch (period) {
+    case 'weekly':
+      endDate = new Date(startDate.getTime() + (6 * 24 * 60 * 60 * 1000));
+      break;
+    case 'monthly':
+      endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
+      break;
+    case 'quarterly':
+      endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 3, 0);
+      break;
+    case 'yearly':
+      endDate = new Date(startDate.getFullYear(), 11, 31);
+      break;
+  }
+  
+  document.getElementById('budgetEndDate').value = endDate.toISOString().split('T')[0];
+}
+
+function updateThresholdDisplay() {
+  const value = document.getElementById('budgetAlertThreshold').value;
+  document.getElementById('thresholdDisplay').textContent = value + '%';
+}
+
+function updateEditThresholdDisplay() {
+  const value = document.getElementById('editBudgetAlertThreshold').value;
+  document.getElementById('editThresholdDisplay').textContent = value + '%';
+}
+
+// Save budget
+async function saveBudget(event) {
+  event.preventDefault();
+  
+  const saveBtn = document.getElementById('saveBudgetBtn');
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Creating Budget...';
+  
+  document.getElementById('budgetError').style.display = 'none';
+  document.getElementById('budgetSuccess').style.display = 'none';
+
+  try {
+    const payload = {
+      name: document.getElementById('budgetName').value.trim(),
+      amount: parseFloat(document.getElementById('budgetAmount').value),
+      category: document.getElementById('budgetCategory').value,
+      period: document.getElementById('budgetPeriod').value,
+      startDate: document.getElementById('budgetStartDate').value,
+      endDate: document.getElementById('budgetEndDate').value,
+      alertThreshold: parseInt(document.getElementById('budgetAlertThreshold').value),
+      notes: document.getElementById('budgetNotes').value.trim()
+    };
+
+    const response = await apiCall('/budgets', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+
+    document.getElementById('budgetSuccess').textContent = response.message;
+    document.getElementById('budgetSuccess').style.display = 'block';
+
+    setTimeout(() => {
+      closeModal('createBudgetModal');
+      loadBudgets();
+      loadDashboard(); // Refresh dashboard
+    }, 2000);
+
+  } catch (error) {
+    document.getElementById('budgetError').textContent = error.message || 'Failed to create budget';
+    document.getElementById('budgetError').style.display = 'block';
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Create Budget';
+  }
+}
+
+// View budget details
+async function viewBudgetDetails(budgetId) {
+  try {
+    const response = await apiCall(`/budgets/${budgetId}`);
+    const budget = response.data;
+    
+    document.getElementById('budgetDetailsTitle').textContent = `📊 ${budget.name}`;
+    
+    const progressClass = budget.isExceeded ? 'exceeded' : 
+                         budget.spentPercentage >= 80 ? 'near-limit' : 'on-track';
+    
+    let detailsHtml = `
+      <div class="budget-card ${progressClass}">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div>
+            <h2 style="margin: 0;">${budget.name}</h2>
+            <p style="margin: 5px 0; color: #718096;">
+              ${budget.category} • ${budget.period} budget
+            </p>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 24px; font-weight: bold; color: ${budget.isExceeded ? '#e53e3e' : '#667eea'};">
+              ₹${budget.spent.toLocaleString()}
+            </div>
+            <div style="font-size: 14px; color: #718096;">
+              of ₹${budget.amount.toLocaleString()}
+            </div>
+          </div>
+        </div>
+
+        <div class="budget-progress" style="margin: 20px 0;">
+          <div class="budget-progress-fill ${progressClass}" style="width: ${Math.min(budget.spentPercentage, 100)}%">
+            ${budget.spentPercentage}% spent
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number">₹${budget.remaining.toFixed(2)}</div>
+            <div class="stat-label">Remaining</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">${budget.daysRemaining}</div>
+            <div class="stat-label">Days Left</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">${budget.alertThreshold}%</div>
+            <div class="stat-label">Alert At</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">${budget.expenses ? budget.expenses.length : 0}</div>
+            <div class="stat-label">Transactions</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin: 20px 0;">
+        <h4 style="margin-bottom: 15px;">Budget Period</h4>
+        <div class="budget-timeline">
+          <div class="timeline-item">
+            <span>Start Date:</span>
+            <span>${new Date(budget.startDate).toLocaleDateString()}</span>
+          </div>
+          <div class="timeline-item">
+            <span>End Date:</span>
+            <span>${new Date(budget.endDate).toLocaleDateString()}</span>
+          </div>
+          <div class="timeline-item">
+            <span>Duration:</span>
+            <span>${Math.ceil((new Date(budget.endDate) - new Date(budget.startDate)) / (1000 * 60 * 60 * 24))} days</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Recent expenses
+    if (budget.expenses && budget.expenses.length > 0) {
+      detailsHtml += `
+        <div style="margin: 20px 0;">
+          <h4 style="margin-bottom: 15px;">Recent Expenses</h4>
+      `;
+      
+      budget.expenses.slice(0, 10).forEach(expense => {
+        let amount = expense.amount;
+        let type = 'Personal';
+        
+        if (expense.splits && expense.splits.length > 0) {
+          const userSplit = expense.splits.find(s => s.user._id === currentUser._id);
+          amount = userSplit ? userSplit.share : 0;
+          type = 'Split';
+        }
+        
+        detailsHtml += `
+          <div class="timeline-item">
+            <div>
+              <strong>${expense.description}</strong>
+              <br><small>${expense.category} • ${type} • ${new Date(expense.date).toLocaleDateString()}</small>
+            </div>
+            <div style="font-weight: bold; color: #e53e3e;">₹${amount.toFixed(2)}</div>
+          </div>
+        `;
+      });
+      
+      detailsHtml += '</div>';
+    }
+
+    if (budget.notes) {
+      detailsHtml += `
+        <div style="margin: 20px 0;">
+          <h4 style="margin-bottom: 15px;">Notes</h4>
+          <div class="budget-timeline">
+            <p>${budget.notes}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById('budgetDetailsContent').innerHTML = detailsHtml;
+    openModal('budgetDetailsModal');
+    
+  } catch (error) {
+    showNotification('Failed to load budget details', 'error');
+    console.error('Budget details error:', error);
+  }
+}
+
+// Edit budget
+function editBudget(budgetId) {
+  const budget = budgetsCache.find(b => b._id === budgetId);
+  if (!budget) {
+    showNotification('Budget not found', 'error');
+    return;
+  }
+
+  currentEditingBudgetId = budgetId;
+  
+  document.getElementById('editBudgetName').value = budget.name;
+  document.getElementById('editBudgetAmount').value = budget.amount;
+  document.getElementById('editBudgetAlertThreshold').value = budget.alertThreshold;
+  document.getElementById('editThresholdDisplay').textContent = budget.alertThreshold + '%';
+  document.getElementById('editBudgetNotes').value = budget.notes || '';
+  
+  document.getElementById('editBudgetError').style.display = 'none';
+  
+  openModal('editBudgetModal');
+}
+
+// Update budget
+async function updateBudget(event) {
+  event.preventDefault();
+  
+  try {
+    const payload = {
+      name: document.getElementById('editBudgetName').value.trim(),
+      amount: parseFloat(document.getElementById('editBudgetAmount').value),
+      alertThreshold: parseInt(document.getElementById('editBudgetAlertThreshold').value),
+      notes: document.getElementById('editBudgetNotes').value.trim()
+    };
+
+    const response = await apiCall(`/budgets/${currentEditingBudgetId}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    });
+
+    showNotification(response.message, 'success');
+    closeModal('editBudgetModal');
+    loadBudgets();
+
+  } catch (error) {
+    document.getElementById('editBudgetError').textContent = error.message || 'Failed to update budget';
+    document.getElementById('editBudgetError').style.display = 'block';
+  }
+}
+
+// Delete budget
+async function deleteBudget(budgetId) {
+  const budget = budgetsCache.find(b => b._id === budgetId);
+  if (!budget) return;
+
+  if (!confirm(`Delete "${budget.name}" budget? This action cannot be undone.`)) return;
+  
+  try {
+    await apiCall(`/budgets/${budgetId}`, { method: 'DELETE' });
+    showNotification('Budget deleted successfully', 'success');
+    loadBudgets();
+    loadDashboard();
+  } catch (error) {
+    showNotification('Failed to delete budget: ' + error.message, 'error');
+  }
+}
+
+// Reset budget for next period
+async function resetBudget(budgetId) {
+  const budget = budgetsCache.find(b => b._id === budgetId);
+  if (!budget) return;
+
+  if (!confirm(`Reset "${budget.name}" for the next ${budget.period} period?`)) return;
+  
+  try {
+    const response = await apiCall(`/budgets/${budgetId}/reset`, { method: 'POST' });
+    showNotification(response.message, 'success');
+    loadBudgets();
+  } catch (error) {
+    showNotification('Failed to reset budget: ' + error.message, 'error');
+  }
+}
+
+// Update the loadSectionData function to include budgets
+function loadSectionData(id) {
+  if (id === 'dashboard') loadDashboard();
+  if (id === 'expenses') loadExpenses();
+  if (id === 'splits') loadSplits();
+  if (id === 'groups') loadGroups();
+  if (id === 'budget') loadBudgets(); // Add this line
+}
+
+    
   </script>
+
+  <!-- CREATE BUDGET MODAL -->
+<div id="createBudgetModal" class="modal">
+  <div class="modal-content large">
+    <div class="modal-header">
+      <h3 id="createBudgetModalTitle">Create New Budget</h3>
+      <button class="close-modal" onclick="closeModal('createBudgetModal')">&times;</button>
+    </div>
+    <form onsubmit="saveBudget(event)">
+      <div class="form-group">
+        <label>Budget Name</label>
+        <input type="text" id="budgetName" required maxlength="50" placeholder="e.g., Monthly Food Budget, Entertainment Fund" />
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div class="form-group">
+          <label>Budget Amount (₹)</label>
+          <input type="number" id="budgetAmount" required min="1" step="0.01" placeholder="5000" />
+        </div>
+
+        <div class="form-group">
+          <label>Category</label>
+          <select id="budgetCategory" required>
+            <option value="">Select Category</option>
+            <option value="All Categories">All Categories</option>
+            <option value="Food & Dining">Food & Dining</option>
+            <option value="Transportation">Transportation</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Bills & Utilities">Bills & Utilities</option>
+            <option value="Healthcare">Healthcare</option>
+            <option value="Others">Others</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+        <div class="form-group">
+          <label>Period</label>
+          <select id="budgetPeriod" onchange="updateBudgetDates()">
+            <option value="weekly">Weekly</option>
+            <option value="monthly" selected>Monthly</option>
+            <option value="quarterly">Quarterly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Start Date</label>
+          <input type="date" id="budgetStartDate" required onchange="updateBudgetEndDate()" />
+        </div>
+
+        <div class="form-group">
+          <label>End Date</label>
+          <input type="date" id="budgetEndDate" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Alert Threshold (%)</label>
+        <input type="range" id="budgetAlertThreshold" min="50" max="95" value="80" 
+               oninput="updateThresholdDisplay()" style="width: 100%;" />
+        <div style="display: flex; justify-content: space-between; font-size: 12px; color: #718096;">
+          <span>50%</span>
+          <span id="thresholdDisplay">80%</span>
+          <span>95%</span>
+        </div>
+        <p style="font-size: 12px; color: #718096; margin-top: 5px;">
+          You'll receive alerts when spending reaches this percentage of your budget
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label>Notes (Optional)</label>
+        <textarea id="budgetNotes" placeholder="Any additional notes about this budget..." maxlength="200"></textarea>
+      </div>
+
+      <div id="budgetPreview" class="split-preview" style="display: none;">
+        <h4>Budget Preview:</h4>
+        <div id="budgetPreviewContent"></div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button type="submit" class="btn btn-primary" id="saveBudgetBtn" style="flex:1">Create Budget</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('createBudgetModal')">Cancel</button>
+      </div>
+      
+      <div id="budgetError" class="error-message"></div>
+      <div id="budgetSuccess" class="success-message"></div>
+    </form>
+  </div>
+</div>
+
+<!-- BUDGET DETAILS MODAL -->
+<div id="budgetDetailsModal" class="modal">
+  <div class="modal-content large">
+    <div class="modal-header">
+      <h3 id="budgetDetailsTitle">Budget Details</h3>
+      <button class="close-modal" onclick="closeModal('budgetDetailsModal')">&times;</button>
+    </div>
+    <div id="budgetDetailsContent">
+      <!-- Content will be loaded dynamically -->
+    </div>
+  </div>
+</div>
+
+<!-- EDIT BUDGET MODAL -->
+<div id="editBudgetModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Edit Budget</h3>
+      <button class="close-modal" onclick="closeModal('editBudgetModal')">&times;</button>
+    </div>
+    <form onsubmit="updateBudget(event)">
+      <div class="form-group">
+        <label>Budget Name</label>
+        <input type="text" id="editBudgetName" required maxlength="50" />
+      </div>
+      
+      <div class="form-group">
+        <label>Budget Amount (₹)</label>
+        <input type="number" id="editBudgetAmount" required min="1" step="0.01" />
+      </div>
+
+      <div class="form-group">
+        <label>Alert Threshold (%)</label>
+        <input type="range" id="editBudgetAlertThreshold" min="50" max="95" value="80" 
+               oninput="updateEditThresholdDisplay()" style="width: 100%;" />
+        <div style="display: flex; justify-content: space-between; font-size: 12px; color: #718096;">
+          <span>50%</span>
+          <span id="editThresholdDisplay">80%</span>
+          <span>95%</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="editBudgetNotes" maxlength="200"></textarea>
+      </div>
+      
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button type="submit" class="btn btn-primary" style="flex:1">Update Budget</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('editBudgetModal')">Cancel</button>
+      </div>
+      
+      <div id="editBudgetError" class="error-message"></div>
+    </form>
+  </div>
+</div>
+
 </body>
 </html>
-

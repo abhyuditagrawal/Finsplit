@@ -147,9 +147,16 @@
                 <input type="email" id="loginEmail" required>
             </div>
             <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="loginPassword" required>
-            </div>
+  <label>Password</label>
+  <input type="password" id="loginPassword" required />
+</div>
+<!-- ADD THIS -->
+<div style="text-align: right; margin: 10px 0;">
+  <a href="#" onclick="openForgotPasswordModal()" style="color: #667eea; font-size: 14px; text-decoration: none;">
+    Forgot Password?
+  </a>
+</div>
+
             <button type="submit" class="btn" id="loginBtn">Login</button>
             <div id="loginError" class="error-message"></div>
         </form>
@@ -181,6 +188,36 @@
             <div id="registerSuccess" class="success-message"></div>
         </form>
     </div>
+
+    <!-- ADD THE FORGOT PASSWORD MODAL HERE -->
+<div id="forgotPasswordModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.5); z-index: 1000;">
+  <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+    <div style="background: white; border-radius: 12px; padding: 2rem; max-width: 400px; width: 90%;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3>🔐 Reset Password</h3>
+        <button onclick="closeForgotPasswordModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #718096;">&times;</button>
+      </div>
+      
+      <form onsubmit="forgotPassword(event)">
+        <div class="form-group">
+          <label>Enter your email address:</label>
+          <input type="email" id="forgotPasswordEmail" required />
+          <p style="font-size: 12px; color: #718096; margin-top: 5px;">
+            We'll send you a link to reset your password.
+          </p>
+        </div>
+        
+        <button type="submit" class="btn" id="forgotPasswordBtn">Send Reset Link</button>
+      </form>
+      
+      <div id="forgotPasswordError" class="error-message"></div>
+      <div id="forgotPasswordSuccess" class="success-message"></div>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>
 
     <script>
         const API_BASE = 'http://localhost:5000/api';
@@ -311,6 +348,66 @@
         if (localStorage.getItem('token')) {
             window.location.href = 'index.html';
         }
-    </script>
+
+// Forgot password functionality
+function openForgotPasswordModal() {
+  document.getElementById('forgotPasswordModal').style.display = 'flex';
+  document.getElementById('forgotPasswordEmail').value = '';
+  document.getElementById('forgotPasswordError').style.display = 'none';
+  document.getElementById('forgotPasswordSuccess').style.display = 'none';
+}
+
+function closeForgotPasswordModal() {
+  document.getElementById('forgotPasswordModal').style.display = 'none';
+}
+
+async function forgotPassword(event) {
+  event.preventDefault();
+  
+  const btn = document.getElementById('forgotPasswordBtn');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  
+  const errorDiv = document.getElementById('forgotPasswordError');
+  const successDiv = document.getElementById('forgotPasswordSuccess');
+  
+  errorDiv.style.display = 'none';
+  successDiv.style.display = 'none';
+  
+  try {
+    const response = await fetch(`${API_BASE}/profile/forgot-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: document.getElementById('forgotPasswordEmail').value
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      successDiv.textContent = data.message;
+      successDiv.style.display = 'block';
+      
+      // Show reset token in development
+      if (data.resetToken) {
+        successDiv.innerHTML = data.message + '<br><br><strong>Development Mode:</strong><br>Reset Token: ' + data.resetToken + '<br><small>Use this token to reset your password</small>';
+      }
+    } else {
+      errorDiv.textContent = data.message;
+      errorDiv.style.display = 'block';
+    }
+  } catch (error) {
+    errorDiv.textContent = 'Network error. Please try again.';
+    errorDiv.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Send Reset Link';
+  }
+}
+</script>
+
 </body>
 </html>

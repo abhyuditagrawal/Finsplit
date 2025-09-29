@@ -1,7 +1,45 @@
 const express = require('express');
 const router = express.Router();
 const Expense = require('../models/Expense');
+const Budget = require('../models/Budget'); // ADD THIS LINE
 const auth = require('../middleware/auth');
+
+// ADD THIS ENTIRE FUNCTION AFTER THE IMPORTS
+async function updateRelatedBudgets(userId, expenseData) {
+  try {
+    // Find all active budgets for this user
+    const budgets = await Budget.find({ 
+      user: userId, 
+      isActive: true 
+    });
+
+    for (let budget of budgets) {
+      // Check if this expense affects this budget
+      const expenseDate = new Date(expenseData.date);
+      const budgetStart = new Date(budget.startDate);
+      const budgetEnd = new Date(budget.endDate);
+
+      // Skip if expense is outside budget period
+      if (expenseDate < budgetStart || expenseDate > budgetEnd) {
+        continue;
+      }
+
+      // Skip if budget category doesn't match (unless it's "All Categories")
+      if (budget.category !== 'All Categories' && 
+          budget.category !== expenseData.category) {
+        continue;
+      }
+
+      // Recalculate budget spending
+      await budget.calculateSpending();
+      await budget.save();
+      
+      console.log(`✅ Updated budget: ${budget.name}`);
+    }
+  } catch (error) {
+    console.error('Error updating budgets:', error);
+  }
+}
 
 // @route   GET /api/expenses
 // @desc    Get all expenses for a user (personal + splits)
@@ -104,11 +142,19 @@ router.post('/', auth, async (req, res) => {
 
     await expense.save();
 
-    res.status(201).json({
-      success: true,
-      data: expense,
-      message: 'Expense added successfully'
-    });
+// ADD THIS LINE - Update related budgets
+await updateRelatedBudgets(req.user._id, {
+  category: expense.category,
+  date: expense.date,
+  amount: expense.amount
+});
+
+res.status(201).json({
+  success: true,
+  data: expense,
+  message: 'Expense added successfully'
+});
+
   } catch (error) {
     console.error('Create expense error:', error);
     res.status(500).json({
@@ -160,11 +206,19 @@ router.put('/:id', auth, async (req, res) => {
 
     await expense.save();
 
-    res.json({
-      success: true,
-      data: expense,
-      message: 'Expense updated successfully'
-    });
+// ADD THIS LINE - Update related budgets
+await updateRelatedBudgets(req.user._id, {
+  category: expense.category,
+  date: expense.date,
+  amount: expense.amount
+});
+
+res.json({
+  success: true,
+  data: expense,
+  message: 'Expense updated successfully'
+});
+
   } catch (error) {
     console.error('Update expense error:', error);
     res.status(500).json({
@@ -208,12 +262,23 @@ router.delete('/:id', auth, async (req, res) => {
       }
     }
 
-    await Expense.findByIdAndDelete(req.params.id);
+    // Store expense data before deletion for budget update
+const expenseData = {
+  category: expense.category,
+  date: expense.date,
+  amount: expense.amount
+};
 
-    res.json({
-      success: true,
-      message: 'Expense deleted successfully'
-    });
+await Expense.findByIdAndDelete(req.params.id);
+
+// ADD THIS LINE - Update related budgets after deletion
+await updateRelatedBudgets(req.user._id, expenseData);
+
+res.json({
+  success: true,
+  message: 'Expense deleted successfully'
+});
+
   } catch (error) {
     console.error('Delete expense error:', error);
     res.status(500).json({

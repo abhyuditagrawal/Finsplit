@@ -19,6 +19,10 @@ const expenseRoutes = require('./routes/expenses');
 const groupRoutes = require('./routes/groups');
 const userRoutes = require('./routes/users');
 const splitRoutes = require('./routes/splits');
+const budgetRoutes = require('./routes/budgets');
+const profileRoutes = require('./routes/profile');
+
+
 
 // Register routes
 app.use('/api/auth', authRoutes);
@@ -26,6 +30,10 @@ app.use('/api/expenses', expenseRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/splits', splitRoutes);
+app.use('/api/budgets', budgetRoutes);
+app.use('/api/profile', profileRoutes);
+
+
 
 // Basic root endpoint
 app.get('/', (req, res) => {

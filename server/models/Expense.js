@@ -30,6 +30,11 @@ const expenseSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  group: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Group',
+    default: null
+  },
   // Split-specific fields
   splits: [{
     user: {
@@ -62,12 +67,7 @@ const expenseSchema = new mongoose.Schema({
   }],
   splitType: {
     type: String,
-    enum: ['equal', 'exact', 'percent'],
-    default: null
-  },
-  group: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Group',
+    // enum: ['equal', 'exact', 'percent'],
     default: null
   },
   receiptUrl: {

@@ -3,15 +3,15 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
-// Load environment variables
+// Load environment variables from .env file
 dotenv.config();
 
 const app = express();
 
 // Middleware
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cors()); // Enable CORS - you can restrict origins in production
+app.use(express.json({ limit: '10mb' })); // Parse JSON payloads
+app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse urlencoded payloads
 
 // Routes
 const authRoutes = require('./routes/auth');
@@ -20,14 +20,14 @@ const groupRoutes = require('./routes/groups');
 const userRoutes = require('./routes/users');
 const splitRoutes = require('./routes/splits');
 
-// Route registration
+// Register routes
 app.use('/api/auth', authRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/splits', splitRoutes);
 
-// Basic route for testing
+// Basic root endpoint
 app.get('/', (req, res) => {
   res.json({ 
     message: 'FinSplit API is running',
@@ -45,7 +45,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// Error handling middleware
+// Global error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(500).json({
@@ -55,7 +55,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler
+// 404 Not Found handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -63,7 +63,7 @@ app.use((req, res) => {
   });
 });
 
-// Database connection
+// Connect to MongoDB Atlas or fallback to localhost
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/finsplit')
   .then(() => {
     console.log('✅ Connected to MongoDB');
@@ -74,7 +74,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/finsplit'
     process.exit(1);
   });
 
-// Graceful shutdown
+// Graceful shutdown on SIGINT
 process.on('SIGINT', async () => {
   console.log('\n🛑 Shutting down gracefully...');
   await mongoose.connection.close();
@@ -93,3 +93,14 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
+
+/*
+.env example:
+
+PORT=5000
+MONGODB_URI=mongodb+srv://finsplit:finsplit123@finsplit.1jh8cv4.mongodb.net/finsplit?retryWrites=true&w=majority&appName=finsplit
+JWT_SECRET=dshjdsbhj!bbsfhjsa@fndksnfdskfsdsbjdd
+JWT_EXPIRE=24h
+NODE_ENV=development
+
+*/

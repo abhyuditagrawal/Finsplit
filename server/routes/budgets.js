@@ -17,8 +17,8 @@ router.get('/', auth, async (req, res) => {
     for (let budget of budgets) {
       await budget.calculateSpending();
       await budget.save();
-    }
-
+    } // ADDED CLOSING BRACKET HERE
+    
     res.json({
       success: true,
       data: budgets

@@ -105,45 +105,65 @@ budgetSchema.virtual('daysRemaining').get(function() {
 
 // Method to calculate spending for this budget period
 budgetSchema.methods.calculateSpending = async function() {
-  const Expense = mongoose.model('Expense');
+  const Expense = require('./Expense');
   
-  let query = {
+  const query = {
     owner: this.user,
     date: { $gte: this.startDate, $lte: this.endDate }
   };
 
-  // Filter by category if not "All Categories"
+  // If specific category budget (not "All Categories")
   if (this.category !== 'All Categories') {
-    query.category = this.category;
+    // Match category for BOTH regular expenses AND split expenses
+    query.category = { $in: [this.category, 'Split'] };
   }
 
-  // Exclude certain categories if specified
-  if (this.excludeCategories && this.excludeCategories.length > 0) {
-    query.category = { $nin: this.excludeCategories };
+  // If groups are specified, only count expenses from those groups
+  if (this.includeGroups && this.includeGroups.length > 0) {
+    query.group = { $in: this.includeGroups };
   }
+
+  console.log('Budget calculation query:', JSON.stringify(query, null, 2));
 
   const expenses = await Expense.find(query);
   
+  console.log(`Found ${expenses.length} expenses for budget "${this.name}"`);
+
   let totalSpent = 0;
-  
-  expenses.forEach(expense => {
+
+  for (const expense of expenses) {
+    // For split expenses, only count the user's share
     if (expense.splits && expense.splits.length > 0) {
-      // For splits, only count user's share
-      const userSplit = expense.splits.find(s => s.user.toString() === this.user.toString());
+      const userSplit = expense.splits.find(
+        split => split.user.toString() === this.user.toString()
+      );
       if (userSplit) {
         totalSpent += userSplit.share;
+        console.log(`Split expense: ${expense.description}, User share: ₹${userSplit.share}`);
       }
     } else {
-      // For personal expenses, count full amount
+      // For regular personal expenses, count full amount
       totalSpent += expense.amount;
+      console.log(`Personal expense: ${expense.description}, Amount: ₹${expense.amount}`);
     }
-  });
+  }
 
-  this.spent = +totalSpent.toFixed(2);
+  this.spent = Math.round(totalSpent * 100) / 100; // Round to 2 decimals
   this.lastCalculated = new Date();
-  
+
+  console.log(`Budget "${this.name}" - Total spent: ₹${this.spent}`);
+
+  // Check if alert threshold is reached
+  const percentageUsed = (this.spent / this.amount) * 100;
+  if (percentageUsed >= this.alertThreshold && !this.alertSent) {
+    this.alertSent = true;
+    // TODO: Trigger notification/email here
+    console.log(`⚠️ Alert: Budget "${this.name}" has reached ${percentageUsed.toFixed(1)}% of limit!`);
+  }
+
   return this.spent;
 };
+
 
 // Method to reset budget for next period
 budgetSchema.methods.resetForNextPeriod = function() {

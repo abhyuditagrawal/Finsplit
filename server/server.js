@@ -32,8 +32,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/splits', splitRoutes);
 app.use('/api/budgets', budgetRoutes);
 app.use('/api/profile', profileRoutes);
-
-
+app.use('/api/insights', require('./routes/insights'));
 
 // Basic root endpoint
 app.get('/', (req, res) => {

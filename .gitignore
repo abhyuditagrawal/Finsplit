@@ -1,0 +1,55 @@
+# Node.js dependencies
+node_modules/
+package-lock.json
+
+# Python virtual environment
+ml-service/venv/
+ml-service/__pycache__/
+ml-service/models/__pycache__/
+ml-service/models/saved_models/
+
+# Environment variables (sensitive data)
+.env
+ml-service/.env
+server/.env
+
+# Python cache files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+
+# Logs
+*.log
+npm-debug.log*
+logs/
+*.log.*
+
+# Build files
+dist/
+build/
+*.zip
+*.tar.gz
+
+# Database files (local only)
+*.db
+*.sqlite
+*.sqlite3
+
+# Test files
+coverage/
+.nyc_output/

@@ -6,7 +6,7 @@ const Expense = require('../models/Expense');
 const auth = require('../middleware/auth');
 
 // @route   GET /api/groups
-// @desc    Get all groups for a user
+// @desc    Get all groups for logged-in user
 // @access  Private
 router.get('/', auth, async (req, res) => {
   try {
@@ -60,8 +60,13 @@ router.post('/', auth, async (req, res) => {
     // Process member emails if provided
     let groupMembers = [];
     if (members && Array.isArray(members) && members.length > 0) {
+      // Extract emails from objects if they have email property
+      const emailList = members.map(m => 
+        typeof m === 'string' ? m : m.email
+      ).filter(Boolean);
+
       // Remove current user's email if included
-      const otherEmails = members.filter(email => 
+      const otherEmails = emailList.filter(email =>
         email.toLowerCase().trim() !== req.user.email.toLowerCase().trim()
       );
 
@@ -73,7 +78,7 @@ router.post('/', auth, async (req, res) => {
 
         if (memberUsers.length !== otherEmails.length) {
           const foundEmails = memberUsers.map(u => u.email.toLowerCase());
-          const notFoundEmails = otherEmails.filter(email => 
+          const notFoundEmails = otherEmails.filter(email =>
             !foundEmails.includes(email.toLowerCase().trim())
           );
           return res.status(400).json({
@@ -82,6 +87,7 @@ router.post('/', auth, async (req, res) => {
           });
         }
 
+        // Create member objects with role
         groupMembers = memberUsers.map(user => ({
           user: user._id,
           role: 'member'
@@ -101,7 +107,7 @@ router.post('/', auth, async (req, res) => {
 
     await group.save();
 
-    // Populate the created group for response
+    // Populate for response
     await group.populate('owner', 'name email');
     await group.populate('members.user', 'name email');
 
@@ -110,7 +116,6 @@ router.post('/', auth, async (req, res) => {
       data: group,
       message: `Group "${group.name}" created successfully${groupMembers.length > 0 ? ` with ${groupMembers.length} members` : ''}`
     });
-
   } catch (error) {
     console.error('Create group error:', error);
     res.status(500).json({
@@ -122,7 +127,7 @@ router.post('/', auth, async (req, res) => {
 });
 
 // @route   GET /api/groups/:id
-// @desc    Get group details
+// @desc    Get group details with stats
 // @access  Private
 router.get('/:id', auth, async (req, res) => {
   try {
@@ -148,22 +153,20 @@ router.get('/:id', auth, async (req, res) => {
     // Get group statistics
     const groupExpenses = await Expense.find({
       group: group._id
-    });
+    }).sort({ createdAt: -1 });
 
     const stats = {
       totalExpenses: groupExpenses.length,
       totalAmount: groupExpenses.reduce((sum, exp) => sum + exp.amount, 0),
       totalSplits: groupExpenses.filter(exp => exp.splits && exp.splits.length > 0).length,
       recentActivity: groupExpenses
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         .slice(0, 5)
         .map(exp => ({
           _id: exp._id,
           description: exp.description,
           amount: exp.amount,
           category: exp.category,
-          createdAt: exp.createdAt,
-          owner: exp.owner
+          createdAt: exp.createdAt
         }))
     };
 
@@ -187,7 +190,7 @@ router.get('/:id', auth, async (req, res) => {
 });
 
 // @route   PUT /api/groups/:id
-// @desc    Update group
+// @desc    Update group settings
 // @access  Private (Admin only)
 router.put('/:id', auth, async (req, res) => {
   try {
@@ -257,11 +260,10 @@ router.put('/:id', auth, async (req, res) => {
 
 // @route   POST /api/groups/:id/members
 // @desc    Add member to group
-// @access  Private (Admin only)
+// @access  Private (Admin only or if settings allow)
 router.post('/:id/members', auth, async (req, res) => {
   try {
     const { email, role = 'member' } = req.body;
-
     const group = await Group.findById(req.params.id);
 
     if (!group || !group.isActive) {
@@ -280,8 +282,8 @@ router.post('/:id/members', auth, async (req, res) => {
     }
 
     // Find user by email
-    const user = await User.findOne({ 
-      email: email.toLowerCase().trim() 
+    const user = await User.findOne({
+      email: email.toLowerCase().trim()
     }).select('_id name email');
 
     if (!user) {
@@ -291,7 +293,14 @@ router.post('/:id/members', auth, async (req, res) => {
       });
     }
 
-    // Check if user is already a member
+    // Check if user is already a member or owner
+    if (group.owner.toString() === user._id.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: 'User is already the owner of this group'
+      });
+    }
+
     if (group.isMember(user._id)) {
       return res.status(400).json({
         success: false,
@@ -323,107 +332,55 @@ router.post('/:id/members', auth, async (req, res) => {
   }
 });
 
-// @route   DELETE /api/groups/:id/members/:userId
-// @desc    Remove member from group
-// @access  Private (Admin only or self)
-router.delete('/:id/members/:userId', auth, async (req, res) => {
-  try {
-    const group = await Group.findById(req.params.id);
-
-    if (!group || !group.isActive) {
-      return res.status(404).json({
-        success: false,
-        message: 'Group not found'
-      });
-    }
-
-    const targetUserId = req.params.userId;
-    const isRemovingSelf = targetUserId === req.user._id.toString();
-    const isAdmin = group.isAdmin(req.user._id);
-
-    // Check permissions
-    if (!isRemovingSelf && !isAdmin) {
-      return res.status(403).json({
-        success: false,
-        message: 'Not authorized to remove members from this group'
-      });
-    }
-
-    // Cannot remove group owner
-    if (targetUserId === group.owner.toString()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Cannot remove group owner'
-      });
-    }
-
-    // Remove member
-    group.members = group.members.filter(
-      member => member.user.toString() !== targetUserId
-    );
-
-    await group.save();
-
-    res.json({
-      success: true,
-      message: isRemovingSelf ? 'Left group successfully' : 'Member removed successfully'
-    });
-  } catch (error) {
-    console.error('Remove member error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-      error: error.message
-    });
-  }
-});
-
 // @route   DELETE /api/groups/:id
-// @desc    Delete group (deactivate)
+// @desc    Delete group (soft delete - deactivate)
 // @access  Private (Owner only)
 router.delete('/:id', auth, async (req, res) => {
+  console.log('🔴🔴🔴 DELETE ROUTE HIT! 🔴🔴🔴');
+  console.log('Group ID:', req.params.id);
+  console.log('User ID:', req.user._id);
+  
   try {
     const group = await Group.findById(req.params.id);
+    console.log('Found group:', group ? group.name : 'NOT FOUND');
+    console.log('Group isActive:', group ? group.isActive : 'N/A');
 
     if (!group || !group.isActive) {
+      console.log('❌ Group not found or inactive');
       return res.status(404).json({
         success: false,
         message: 'Group not found'
       });
     }
 
-    // Only group owner can delete
-    if (group.owner.toString() !== req.user._id.toString()) {
+    const ownerIdStr = group.owner._id ? group.owner._id.toString() : group.owner.toString();
+    const userIdStr = req.user._id.toString();
+    
+    console.log('Owner ID:', ownerIdStr);
+    console.log('User ID:', userIdStr);
+    console.log('Match:', ownerIdStr === userIdStr);
+    
+    if (ownerIdStr !== userIdStr) {
+      console.log('❌ Not authorized');
       return res.status(403).json({
         success: false,
         message: 'Only group owner can delete the group'
       });
     }
 
-    // Check if there are unsettled expenses
-    const unsettledExpenses = await Expense.find({
-      group: group._id,
-      'splits.0': { $exists: true },
-      isSettled: { $ne: true }
-    });
-
-    if (unsettledExpenses.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: `Cannot delete group with ${unsettledExpenses.length} unsettled split(s). Please settle all splits first.`
-      });
-    }
-
-    // Soft delete (deactivate)
+    console.log('🟡 Setting isActive to false...');
     group.isActive = false;
     await group.save();
+    
+    console.log('✅✅✅ GROUP DELETED IN DATABASE ✅✅✅');
+    console.log('Group after save:', group.isActive);
 
     res.json({
       success: true,
       message: 'Group deleted successfully'
     });
   } catch (error) {
-    console.error('Delete group error:', error);
+    console.error('❌❌❌ DELETE ERROR:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',

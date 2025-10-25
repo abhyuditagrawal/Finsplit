@@ -1,0 +1,5 @@
+Prerequisites
+- Node.js (v14 or higher)
+- Python (v3.8 or higher)
+- MongoDB (local or Atlas)
+- Git

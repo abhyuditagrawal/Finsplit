@@ -1,5 +1,40 @@
 {
+  "name": "finsplit",
+  "version": "1.0.0",
+  "description": "Expense tracking and splitting application with ML predictions",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js"
+  },
+  "keywords": [
+    "expense",
+    "tracking",
+    "splitting",
+    "budget",
+    "ml",
+    "predictions"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
   "dependencies": {
-    "axios": "^1.12.2"
+    "express": "^4.18.2",
+    "mongoose": "^7.6.3",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/FinSplit.git"
   }
 }
